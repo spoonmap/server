@@ -18,9 +18,11 @@ public class ServerApplication {
 
 @RestController
 class HealthCheck {
-    @GetMapping("health-check")
-    @ResponseStatus(HttpStatus.OK)
-    public String healthCheck() {
-        return "OK";
-    }
+
+	@GetMapping("health-check")
+	@ResponseStatus(HttpStatus.OK)
+	public String healthCheck() {
+		return "OK";
+	}
+
 }
