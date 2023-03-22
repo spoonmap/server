@@ -10,17 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 public class ServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ServerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ServerApplication.class, args);
+    }
 
 }
 
 @RestController
 class HealthCheck {
+
 	@GetMapping("health-check")
 	@ResponseStatus(HttpStatus.OK)
 	public String healthCheck() {
 		return "OK";
 	}
+
 }
