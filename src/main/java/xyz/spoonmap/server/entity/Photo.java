@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,16 +35,21 @@ public class Photo {
     @Column(name = "deleted_at", nullable = false)
     private LocalDateTime deletedAt;
 
-    private Photo(Long id, String originName, String url, LocalDateTime createdAt, LocalDateTime deletedAt) {
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    private Photo(Long id, String originName, String url, LocalDateTime createdAt, LocalDateTime deletedAt, Post post) {
         this.id = id;
         this.originName = originName;
         this.url = url;
         this.createdAt = createdAt;
         this.deletedAt = deletedAt;
+        this.post = post;
     }
 
-    public static Photo of(String originName, String url) {
-        return new Photo(null, originName, url, LocalDateTime.now(), null);
+    public static Photo of(String originName, String url, Post post) {
+        return new Photo(null, originName, url, LocalDateTime.now(), null, post);
     }
 
 }
