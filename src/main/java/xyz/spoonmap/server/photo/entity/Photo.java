@@ -26,7 +26,7 @@ public class Photo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "photo_id", nullable = false)
+    @Column(name = "photo_id")
     private Long id;
 
     @Column(name = "origin_name", nullable = false)
