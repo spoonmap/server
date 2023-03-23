@@ -1,12 +1,10 @@
-package xyz.spoonmap.server.post.entity;
-
+package xyz.spoonmap.server.comment.entity;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,47 +17,35 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.member.entity.Member;
-import xyz.spoonmap.server.post.entity.enums.MealTime;
-import xyz.spoonmap.server.restaurant.entity.Restaurant;
+import xyz.spoonmap.server.post.entity.Post;
 
 @Entity
-@Table(name = "posts")
+@Table(name = "comments")
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 @Getter
-public class Post {
+public class Comment {
 
     @Id
-    @Column(name = "post_no")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "comment_no")
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "post_no")
+    private Post post;
 
     @ManyToOne
     @JoinColumn(name = "member_no")
     private Member member;
 
-    @OneToOne
-    @JoinColumn(name = "restaurant_no")
-    private Restaurant restaurant;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_no", referencedColumnName = "comment_no")
+    private Comment parentComment;
 
-    @OneToOne
-    @JoinColumn(name = "category_no")
-    private Category category;
-
-    @Column(nullable = false, length = 40)
-    private String title;
-
-    @Column(length = 1000)
+    @Column(nullable = false, length = 500)
     private String content;
-
-    @Column(name = "meal_time", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private MealTime mealTime;
-
-    @Column(nullable = false)
-    private Byte starRating;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)
@@ -72,17 +58,11 @@ public class Post {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public Post(Member member, Restaurant restaurant, Category category, String title, String content,
-            MealTime mealTime,
-            Byte starRating) {
+    public Comment(Post post, Member member, Comment parentComment, String content) {
+        this.post = post;
         this.member = member;
-        this.restaurant = restaurant;
-        this.category = category;
-        this.title = title;
+        this.parentComment = parentComment;
         this.content = content;
-        this.mealTime = mealTime;
-        this.starRating = starRating;
         this.createdAt = LocalDateTime.now();
     }
 }
-

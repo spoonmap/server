@@ -25,6 +25,8 @@ import xyz.spoonmap.server.relation.enums.RelationStatus;
 
 @Table(name = "tables")
 @Entity
+@NoArgsConstructor
+@Getter
 public class Relation {
 
     @EmbeddedId
@@ -32,12 +34,12 @@ public class Relation {
 
     @MapsId(value = "senderNo")
     @ManyToOne
-    @JoinColumn(name = "member_no")
+    @JoinColumn(name = "sender_no")
     private Member sender;
 
     @MapsId(value = "receiverNo")
     @ManyToOne
-    @JoinColumn(name = "member_no")
+    @JoinColumn(name = "receiver_no")
     private Member receiver;
 
     @Column(name = "relation_status", nullable = false)

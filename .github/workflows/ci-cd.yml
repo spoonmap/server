@@ -62,6 +62,7 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
             docker-compose down
+            docker-compose up -d
 
       - name: Remove Github Actions IP From Security Group
         if: contains(github.ref, 'main')
