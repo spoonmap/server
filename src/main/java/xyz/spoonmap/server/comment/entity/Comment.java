@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -34,21 +36,25 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "post_no")
+    @NotNull
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "member_no")
+    @NotNull
     private Member member;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_no", referencedColumnName = "comment_no")
     private Comment parentComment;
 
-    @Column(nullable = false, length = 500)
+    @NotNull
+    @Size(min = 1, max = 500)
     private String content;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
+    @NotNull
     private LocalDateTime createdAt;
 
     @LastModifiedDate

@@ -13,9 +13,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import xyz.spoonmap.server.member.entity.Member;
@@ -35,22 +36,25 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "member_no")
+    @NotNull
     private Member member;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
+    @NotNull
     private LocalDateTime createdAt;
 
-    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
+    @NotNull
+    @Size(min = 1, max = 20)
     private NotificationType type;
 
-    @Column(nullable = false)
-    @ColumnDefault("false")
+    @NotNull
     private Boolean checked;
 
     public Notification(Member member, NotificationType type) {
         this.member = member;
         this.type = type;
+        this.checked = false;
     }
 }

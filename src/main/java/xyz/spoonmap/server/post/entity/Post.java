@@ -14,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,31 +40,38 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "member_no")
+    @NotNull
     private Member member;
 
     @OneToOne
     @JoinColumn(name = "restaurant_no")
+    @NotNull
     private Restaurant restaurant;
 
     @OneToOne
     @JoinColumn(name = "category_no")
+    @NotNull
     private Category category;
 
-    @Column(nullable = false, length = 40)
+    @NotNull
+    @Size(min = 1, max = 40)
     private String title;
 
-    @Column(length = 1000)
+    @Size(min = 1, max = 1000)
     private String content;
 
-    @Column(name = "meal_time", nullable = false)
+    @Column(name = "meal_time")
     @Enumerated(EnumType.STRING)
+    @NotNull
+    @Size(min = 1, max = 2)
     private MealTime mealTime;
 
-    @Column(nullable = false)
+    @NotNull
     private Byte starRating;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
+    @NotNull
     private LocalDateTime createdAt;
 
     @LastModifiedDate
@@ -82,7 +91,6 @@ public class Post {
         this.content = content;
         this.mealTime = mealTime;
         this.starRating = starRating;
-        this.createdAt = LocalDateTime.now();
     }
 }
 
