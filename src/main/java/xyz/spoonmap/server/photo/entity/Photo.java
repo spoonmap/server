@@ -3,6 +3,7 @@ package xyz.spoonmap.server.photo.entity;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,12 +13,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import xyz.spoonmap.server.post.entity.Post;
 
 @Table(name = "photos")
 @Entity
 @NoArgsConstructor
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class Photo {
 
     @Id
@@ -31,6 +35,7 @@ public class Photo {
     @Column(nullable = false)
     private String url;
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -41,17 +46,15 @@ public class Photo {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    private Photo(Long id, String originName, String url, LocalDateTime createdAt, LocalDateTime deletedAt, Post post) {
-        this.id = id;
+    public Photo(String originName, String url, Post post) {
         this.originName = originName;
         this.url = url;
-        this.createdAt = createdAt;
-        this.deletedAt = deletedAt;
+        this.createdAt = LocalDateTime.now();
         this.post = post;
     }
 
-    public static Photo of(String originName, String url, Post post) {
-        return new Photo(null, originName, url, LocalDateTime.now(), null, post);
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 
 }

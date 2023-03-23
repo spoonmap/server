@@ -3,6 +3,7 @@ package xyz.spoonmap.server.member.entity;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,11 +12,15 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Table(name = "members")
 @Entity
 @NoArgsConstructor
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class Member {
 
     @Id
@@ -42,13 +47,27 @@ public class Member {
     @Max(500)
     private String avatar;
 
-    @Column(name="created_at", nullable = false)
+    @CreatedDate
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name="updated_at")
+    @LastModifiedDate
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name="deleted_at")
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    public Member(String name, String email, String password, String nickname, String avatar) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.avatar = avatar;
+    }
+
+    public void withdraw() {
+        this.deletedAt = LocalDateTime.now();
+    }
 
 }
