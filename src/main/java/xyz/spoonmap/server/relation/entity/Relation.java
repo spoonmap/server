@@ -1,6 +1,6 @@
 package xyz.spoonmap.server.relation.entity;
 
-import static xyz.spoonmap.server.relation.enums.RelationStatus.RECEIVED;
+import static xyz.spoonmap.server.relation.enums.RelationStatus.ACCEPTED;
 import static xyz.spoonmap.server.relation.enums.RelationStatus.REJECTED;
 import static xyz.spoonmap.server.relation.enums.RelationStatus.REQUESTED;
 
@@ -15,6 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -42,7 +44,9 @@ public class Relation {
     @JoinColumn(name = "receiver_no")
     private Member receiver;
 
-    @Column(name = "relation_status", nullable = false)
+    @NotNull
+    @Size(min = 1, max = 10)
+    @Column(name = "relation_status")
     @Enumerated(value = EnumType.STRING)
     private RelationStatus relationStatus;
 
@@ -53,9 +57,11 @@ public class Relation {
     @EqualsAndHashCode
     public static class Pk implements Serializable {
 
+        @NotNull
         @Column(name = "sender_no")
         private Long senderNo;
 
+        @NotNull
         @Column(name = "receiver_no")
         private Long receiverNo;
 
@@ -72,8 +78,8 @@ public class Relation {
         return new Relation(new Pk(sender.getId(), receiver.getId()), sender, receiver, REQUESTED);
     }
 
-    public void receive() {
-        this.relationStatus = RECEIVED;
+    public void accept() {
+        this.relationStatus = ACCEPTED;
     }
 
     public void reject() {

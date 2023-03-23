@@ -9,7 +9,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -28,27 +30,29 @@ public class Member {
     @Column(name = "member_no")
     private Long id;
 
-    @Max(10)
-    @Column(nullable = false)
+    @Size(min = 2, max = 10)
+    @NotBlank
+    @Column
     private String name;
 
     @Email
-    @Column(nullable = false)
+    @NotBlank
     private String email;
 
-    @Max(60)
-    @Column(nullable = false)
+    @Size(min = 50, max = 60)
+    @NotBlank
     private String password;
 
-    @Max(20)
-    @Column(nullable = false)
+    @Size(min = 2, max = 20)
+    @NotBlank
     private String nickname;
 
-    @Max(500)
+    @Size(min = 1, max = 500)
     private String avatar;
 
+    @NotNull
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
