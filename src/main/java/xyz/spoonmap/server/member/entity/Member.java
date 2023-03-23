@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Getter;
@@ -31,20 +30,21 @@ public class Member {
     private Long id;
 
     @Size(min = 2, max = 10)
-    @NotBlank
+    @NotNull
     @Column
     private String name;
 
+    @Size(max = 500)
     @Email
-    @NotBlank
+    @NotNull
     private String email;
 
     @Size(min = 50, max = 60)
-    @NotBlank
+    @NotNull
     private String password;
 
     @Size(min = 2, max = 20)
-    @NotBlank
+    @NotNull
     private String nickname;
 
     @Size(min = 1, max = 500)

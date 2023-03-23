@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.relation.enums.RelationStatus;
 
-@Table(name = "tables")
+@Table(name = "relations")
 @Entity
 @NoArgsConstructor
 @Getter
@@ -67,15 +67,11 @@ public class Relation {
 
     }
 
-    private Relation(Pk id, Member sender, Member receiver, RelationStatus relationStatus) {
-        this.id = id;
+    public Relation(Member sender, Member receiver) {
+        this.id = new Pk(sender.getId(), receiver.getId());
         this.sender = sender;
         this.receiver = receiver;
-        this.relationStatus = relationStatus;
-    }
-
-    public static Relation of(Member sender, Member receiver) {
-        return new Relation(new Pk(sender.getId(), receiver.getId()), sender, receiver, REQUESTED);
+        this.relationStatus = REQUESTED;
     }
 
     public void accept() {

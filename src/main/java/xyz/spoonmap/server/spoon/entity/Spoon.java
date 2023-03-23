@@ -42,6 +42,7 @@ public class Spoon {
     @JoinColumn(name = "post_no")
     private Post post;
 
+    @NotNull
     @CreatedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;
