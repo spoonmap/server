@@ -1,8 +1,9 @@
-package xyz.spoonmap.server.entity;
+package xyz.spoonmap.server.photo.entity;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import xyz.spoonmap.server.post.entity.Post;
 
 @Table(name = "photos")
 @Entity
@@ -35,7 +37,7 @@ public class Photo {
     @Column(name = "deleted_at", nullable = false)
     private LocalDateTime deletedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 

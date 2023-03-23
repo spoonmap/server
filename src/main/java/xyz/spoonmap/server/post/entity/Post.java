@@ -1,4 +1,4 @@
-package xyz.spoonmap.server.entity;
+package xyz.spoonmap.server.post.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
