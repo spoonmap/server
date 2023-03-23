@@ -28,7 +28,7 @@ import xyz.spoonmap.server.post.entity.Post;
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_no")
     private Long id;
 

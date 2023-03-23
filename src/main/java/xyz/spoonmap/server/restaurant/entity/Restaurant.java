@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Restaurant {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "restaurant_no")
     private Long id;
 

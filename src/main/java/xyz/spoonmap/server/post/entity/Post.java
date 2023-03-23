@@ -33,7 +33,7 @@ public class Post {
 
     @Id
     @Column(name = "post_no")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -72,7 +72,8 @@ public class Post {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public Post(Member member, Restaurant restaurant, Category category, String title, String content, MealTime mealTime,
+    public Post(Member member, Restaurant restaurant, Category category, String title, String content,
+            MealTime mealTime,
             Byte starRating) {
         this.member = member;
         this.restaurant = restaurant;

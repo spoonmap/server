@@ -29,7 +29,7 @@ import xyz.spoonmap.server.notification.entity.enums.NotificationType;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "notification_no")
     private Long id;
 
