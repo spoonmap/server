@@ -11,6 +11,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -62,6 +63,7 @@ public class Member {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Builder
     public Member(String name, String email, String password, String nickname, String avatar) {
         this.name = name;
         this.email = email;
