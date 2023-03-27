@@ -3,7 +3,7 @@ spring:
     host: smtp.gmail.com # 1
     port: 587 # 2
     username: spoonmap.ad@gmail.com
-    password: spoonmap123!!
+    password: xndynlabehqhdnam
     properties:
       mail:
         smtp:

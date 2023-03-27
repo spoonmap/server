@@ -6,9 +6,6 @@
         <style>
             .root {
                 width: 60%;
-                flex-direction: column;
-                justify-content: space-between;
-                display: flex;
                 height: 500px;
                 margin: 50px auto;
                 text-align: center;
@@ -16,12 +13,14 @@
             }
 
             .content {
-                display: flex;
-                margin: 50px auto;
+                height: 200px;
+                padding-top: 125px;
+                margin: 0 auto;
+                font-size: 20px;
             }
 
             .verify {
-                margin: 20px auto;
+                margin: 0 auto;
                 border: 1px solid black;
                 line-height: 3em;
                 width: 5em;
@@ -37,12 +36,14 @@
             <div class="content">
                 <div>
                     <span>이메일:</span>
-                    <span>example@email.com</span>
-                    <p>인증을 위해서는 아래의 버튼을 클릭해주세요.</p>
+                    <span th:text="${email}">example@email.com</span>
+                    <p>이메일 인증을 위해 아래의 버튼을 클릭해주세요.</p>
                 </div>
             </div>
             <div class="verify">
-                <a>인증하기</a>
+                <a th:href="@{http://localhost:8080/members/verify(code = ${code})}">
+                    인증하기
+                </a>
             </div>
         </div>
     </body>

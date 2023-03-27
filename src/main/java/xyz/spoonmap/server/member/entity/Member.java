@@ -1,9 +1,13 @@
 package xyz.spoonmap.server.member.entity;
 
+import static xyz.spoonmap.server.member.enums.Status.*;
+
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,6 +21,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import xyz.spoonmap.server.member.enums.Status;
 
 @Table(name = "members")
 @Entity
@@ -63,6 +68,9 @@ public class Member {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
     @Builder
     public Member(String name, String email, String password, String nickname, String avatar) {
         this.name = name;
@@ -70,10 +78,15 @@ public class Member {
         this.password = password;
         this.nickname = nickname;
         this.avatar = avatar;
+        this.status = SIGNUP;
     }
 
     public void withdraw() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void verify() {
+        this.status = VERIFIED;
     }
 
 }

@@ -7,4 +7,6 @@ public interface MemberService {
 
     SignupResponse signUp(final SignupRequest signupRequest);
 
+    SignupResponse verify(Long code);
+
 }
