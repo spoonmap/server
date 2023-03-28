@@ -1,11 +1,12 @@
 package xyz.spoonmap.server.dto.response;
 
-import lombok.Getter;
+public record Response<T>(
+    Integer code,
+    T data
+) {
 
-@Getter
-public class Response<T> {
-
-    private Integer code;
-    private T data;
+    public static <T> Response<T> of(Integer code, T data) {
+        return new Response<>(code, data);
+    }
 
 }

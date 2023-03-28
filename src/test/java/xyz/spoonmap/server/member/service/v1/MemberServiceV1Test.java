@@ -37,11 +37,13 @@ class MemberServiceV1Test {
     @DisplayName("회원가입")
     @Test
     void signUp() {
+
         String email = "email@email.com";
         String password = "passw0rd";
         String nickname = "Nick";
         String name = "홍길동";
-        SignupRequest signupRequest = new SignupRequest(email, password, nickname, name);
+
+        SignupRequest request = new SignupRequest(email, password, nickname, name);
 
         Member member = mock(Member.class);
         given(member.getId()).willReturn(1L);
@@ -49,7 +51,7 @@ class MemberServiceV1Test {
 
         given(memberRepository.save(any(Member.class))).willReturn(member);
 
-        SignupResponse response = memberService.signUp(signupRequest);
+        SignupResponse response = memberService.signUp(request);
 
         then(memberRepository).should(times(1)).save(any(Member.class));
         assertThat(response.id()).isEqualTo(1L);
