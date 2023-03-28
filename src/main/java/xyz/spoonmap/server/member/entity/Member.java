@@ -68,8 +68,9 @@ public class Member {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "verify_status")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status verifyStatus;
 
     @Builder
     public Member(String name, String email, String password, String nickname, String avatar) {
@@ -78,7 +79,7 @@ public class Member {
         this.password = password;
         this.nickname = nickname;
         this.avatar = avatar;
-        this.status = SIGNUP;
+        this.verifyStatus = SIGNUP;
     }
 
     public void withdraw() {
@@ -86,7 +87,7 @@ public class Member {
     }
 
     public void verify() {
-        this.status = VERIFIED;
+        this.verifyStatus = VERIFIED;
     }
 
 }

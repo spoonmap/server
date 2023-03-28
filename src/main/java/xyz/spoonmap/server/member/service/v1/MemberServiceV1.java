@@ -3,6 +3,7 @@ package xyz.spoonmap.server.member.service.v1;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.exception.member.MemberNotFoundException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
@@ -11,12 +12,14 @@ import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.member.service.MemberService;
 
 @Slf4j
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class MemberServiceV1 implements MemberService {
 
     private final MemberRepository memberRepository;
 
+    @Transactional
     @Override
     public SignupResponse signUp(final SignupRequest signupRequest) {
 
@@ -27,13 +30,14 @@ public class MemberServiceV1 implements MemberService {
                               .name(signupRequest.name())
                               .build();
 
-        memberRepository.save(member);
+        Member savedMember = memberRepository.save(member);
 
-        return new SignupResponse(member.getId(), member.getEmail());
+        return new SignupResponse(savedMember.getId(), savedMember.getEmail());
     }
 
+    @Transactional
     @Override
-    public SignupResponse verify(Long code) {
+    public SignupResponse verify(final Long code) {
         Member member = memberRepository.findById(code).orElseThrow(MemberNotFoundException::new);
         member.verify();
         return new SignupResponse(member.getId(), member.getEmail());
