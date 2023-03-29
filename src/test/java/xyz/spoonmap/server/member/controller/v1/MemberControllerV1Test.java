@@ -3,20 +3,22 @@ package xyz.spoonmap.server.member.controller.v1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,10 +28,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import xyz.spoonmap.server.exception.member.MemberNotFoundException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
+import xyz.spoonmap.server.member.dto.response.EmailResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
-import xyz.spoonmap.server.member.dto.response.WithdrawResponse;
-import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.service.v1.MemberServiceV1;
 
 @MockBean(JpaMetamodelMappingContext.class)
@@ -50,6 +52,7 @@ class MemberControllerV1Test {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                                 .defaultResponseCharacterEncoding(UTF_8)
                                  .alwaysDo(print())
                                  .build();
     }
@@ -86,8 +89,8 @@ class MemberControllerV1Test {
     @DisplayName("회원탈퇴")
     @Test
     void testWithdraw() throws Exception {
-        WithdrawResponse withdrawResponse = new WithdrawResponse(email);
-        given(memberService.withdraw(email)).willReturn(withdrawResponse);
+        EmailResponse emailResponse = new EmailResponse(email);
+        given(memberService.withdraw(email)).willReturn(emailResponse);
 
         mockMvc.perform(delete("/v1/members?email={email}", email)
                    .characterEncoding(UTF_8))
@@ -95,5 +98,33 @@ class MemberControllerV1Test {
                .andExpect(jsonPath("$.code", is(NO_CONTENT.value())))
                .andExpect(jsonPath("$.data.email", is(email)));
     }
+
+    @DisplayName("이메일 조회")
+    @Test
+    void testRetrieveMemberByEmail() throws Exception {
+        EmailResponse response = new EmailResponse(email);
+        given(memberService.retrieveMemberByEmail(email)).willReturn(response);
+
+        mockMvc.perform(get("/v1/members/email/{email}", email)
+                   .characterEncoding(UTF_8))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.code", is(OK.value())))
+               .andExpect(jsonPath("$.data.email", is(email)));
+
+        then(memberService).should(times(1)).retrieveMemberByEmail(email);
+    }
+
+    // @DisplayName("잘못된 형식의 이메일로 조회")
+    // @Test
+    // void testRetrieveMemberByEmailFailWithInvalidEmailFormat() throws Exception {
+    //     String wrongFormatEmail = "email";
+    //     given(memberService.retrieveMemberByEmail(wrongFormatEmail)).willThrow(MemberNotFoundException.class);
+    //
+    //     mockMvc.perform(get("/v1/members/email/{email}", wrongFormatEmail)
+    //                .characterEncoding(UTF_8))
+    //            .andExpect(status().isBadRequest());
+    //
+    //     then(memberService).should(times(1)).retrieveMemberByEmail(email);
+    // }
 
 }

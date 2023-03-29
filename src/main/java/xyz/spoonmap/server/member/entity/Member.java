@@ -90,4 +90,8 @@ public class Member {
         this.verifyStatus = VERIFIED;
     }
 
+    public void updatePassword(final String password) {
+        this.password = password;
+    }
+
 }

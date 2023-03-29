@@ -4,7 +4,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -24,8 +23,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.exception.member.MemberWithdrawException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
+import xyz.spoonmap.server.member.dto.response.EmailResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
-import xyz.spoonmap.server.member.dto.response.WithdrawResponse;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.enums.VerifyStatus;
 import xyz.spoonmap.server.member.repository.MemberRepository;
@@ -100,9 +99,9 @@ class MemberServiceV1Test {
 
         given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
 
-        WithdrawResponse withdrawResponse = memberService.withdraw(email);
+        EmailResponse emailResponse = memberService.withdraw(email);
 
-        assertThat(withdrawResponse.email()).isEqualTo(email);
+        assertThat(emailResponse.email()).isEqualTo(email);
 
         then(member).should(times(1)).withdraw();
         then(member).should(times(1)).getEmail();
@@ -120,6 +119,20 @@ class MemberServiceV1Test {
 
         assertThatThrownBy(() -> memberService.withdraw(email))
             .isInstanceOf(MemberWithdrawException.class);
+    }
+
+    @DisplayName("이메일 조회")
+    @Test
+    void testRetrieveMemberByEmail() {
+        Member member = mock(Member.class);
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+
+        EmailResponse response = memberService.retrieveMemberByEmail(email);
+
+        assertThat(response.email()).isEqualTo(email);
+
+        then(memberRepository).should(times(1)).findByEmail(email);
     }
 
 }

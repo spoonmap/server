@@ -1,8 +1,9 @@
 package xyz.spoonmap.server.member.service;
 
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
+import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
-import xyz.spoonmap.server.member.dto.response.WithdrawResponse;
+import xyz.spoonmap.server.member.dto.response.EmailResponse;
 
 public interface MemberService {
 
@@ -10,6 +11,10 @@ public interface MemberService {
 
     SignupResponse verify(Long code);
 
-    WithdrawResponse withdraw(String email);
+    EmailResponse withdraw(String email);
+
+    EmailResponse retrieveMemberByEmail(String email);
+
+    PasswordUpdateResponse findPassword(String email);
 
 }

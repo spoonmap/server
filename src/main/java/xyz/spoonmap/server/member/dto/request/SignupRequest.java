@@ -2,15 +2,10 @@ package xyz.spoonmap.server.member.dto.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import xyz.spoonmap.server.annotation.EmailValidation;
 
-// @NoArgsConstructor
-// @Getter
-public record SignupRequest
-
-    (@EmailValidation
+public record SignupRequest(
+    @EmailValidation
     String email,
 
     @NotBlank
@@ -23,6 +18,7 @@ public record SignupRequest
 
     @NotBlank
     @Size(min = 2, max = 10)
-    String name){}
+    String name
+) {
 
-
+}

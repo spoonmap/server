@@ -8,11 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.exception.member.MemberNotFoundException;
 import xyz.spoonmap.server.exception.member.MemberWithdrawException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
+import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
-import xyz.spoonmap.server.member.dto.response.WithdrawResponse;
+import xyz.spoonmap.server.member.dto.response.EmailResponse;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.member.service.MemberService;
+import xyz.spoonmap.server.util.password.PasswordEncoder;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -21,6 +23,7 @@ import xyz.spoonmap.server.member.service.MemberService;
 public class MemberServiceV1 implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
@@ -28,7 +31,7 @@ public class MemberServiceV1 implements MemberService {
 
         Member member = Member.builder()
                               .email(signupRequest.email())
-                              .password(signupRequest.password())
+                              .password(passwordEncoder.encode(signupRequest.password()))
                               .nickname(signupRequest.nickname())
                               .name(signupRequest.name())
                               .build();
@@ -48,7 +51,7 @@ public class MemberServiceV1 implements MemberService {
 
     @Transactional
     @Override
-    public WithdrawResponse withdraw(String email) {
+    public EmailResponse withdraw(final String email) {
         Member member = memberRepository.findByEmail(email)
                                         .orElseThrow(MemberNotFoundException::new);
 
@@ -57,7 +60,27 @@ public class MemberServiceV1 implements MemberService {
         }
 
         member.withdraw();
-        return new WithdrawResponse(member.getEmail());
+        return new EmailResponse(member.getEmail());
+    }
+
+    @Override
+    public EmailResponse retrieveMemberByEmail(final String email) {
+        Member member = memberRepository.findByEmail(email)
+                                        .orElseThrow(MemberNotFoundException::new);
+        return new EmailResponse(member.getEmail());
+    }
+
+    @Transactional
+    @Override
+    public PasswordUpdateResponse findPassword(String email) {
+        Member member = memberRepository.findByEmail(email)
+                                        .orElseThrow(MemberNotFoundException::new);
+
+        String updatedPassword = passwordEncoder.generateRawPassword();
+        String encodedPassword = passwordEncoder.encode(updatedPassword);
+        member.updatePassword(encodedPassword);
+
+        return new PasswordUpdateResponse(email, updatedPassword);
     }
 
 }
