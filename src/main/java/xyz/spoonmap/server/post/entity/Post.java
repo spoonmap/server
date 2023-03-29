@@ -92,5 +92,6 @@ public class Post {
         this.mealTime = mealTime;
         this.starRating = starRating;
     }
+
 }
 

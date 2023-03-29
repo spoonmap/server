@@ -1,9 +1,13 @@
 package xyz.spoonmap.server.member.entity;
 
+import static xyz.spoonmap.server.member.enums.Status.*;
+
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,11 +15,13 @@ import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import xyz.spoonmap.server.member.enums.Status;
 
 @Table(name = "members")
 @Entity
@@ -62,16 +68,26 @@ public class Member {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "verify_status")
+    @Enumerated(EnumType.STRING)
+    private Status verifyStatus;
+
+    @Builder
     public Member(String name, String email, String password, String nickname, String avatar) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.avatar = avatar;
+        this.verifyStatus = SIGNUP;
     }
 
     public void withdraw() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void verify() {
+        this.verifyStatus = VERIFIED;
     }
 
 }
