@@ -1,12 +1,15 @@
 package xyz.spoonmap.server.member.service.v1;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.exception.member.MemberNotFoundException;
+import xyz.spoonmap.server.exception.member.MemberWithdrawException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
+import xyz.spoonmap.server.member.dto.response.WithdrawResponse;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.member.service.MemberService;
@@ -41,6 +44,20 @@ public class MemberServiceV1 implements MemberService {
         Member member = memberRepository.findById(code).orElseThrow(MemberNotFoundException::new);
         member.verify();
         return new SignupResponse(member.getId(), member.getEmail());
+    }
+
+    @Transactional
+    @Override
+    public WithdrawResponse withdraw(String email) {
+        Member member = memberRepository.findByEmail(email)
+                                        .orElseThrow(MemberNotFoundException::new);
+
+        if (Objects.nonNull(member.getDeletedAt())) {
+            throw new MemberWithdrawException();
+        }
+
+        member.withdraw();
+        return new WithdrawResponse(member.getEmail());
     }
 
 }
