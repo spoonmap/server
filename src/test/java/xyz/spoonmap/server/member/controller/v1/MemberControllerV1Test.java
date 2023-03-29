@@ -3,16 +3,15 @@ package xyz.spoonmap.server.member.controller.v1;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,9 +27,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import xyz.spoonmap.server.exception.member.MemberNotFoundException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
 import xyz.spoonmap.server.member.dto.response.EmailResponse;
+import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
 import xyz.spoonmap.server.member.service.v1.MemberServiceV1;
 
@@ -114,17 +113,17 @@ class MemberControllerV1Test {
         then(memberService).should(times(1)).retrieveMemberByEmail(email);
     }
 
-    // @DisplayName("잘못된 형식의 이메일로 조회")
-    // @Test
-    // void testRetrieveMemberByEmailFailWithInvalidEmailFormat() throws Exception {
-    //     String wrongFormatEmail = "email";
-    //     given(memberService.retrieveMemberByEmail(wrongFormatEmail)).willThrow(MemberNotFoundException.class);
-    //
-    //     mockMvc.perform(get("/v1/members/email/{email}", wrongFormatEmail)
-    //                .characterEncoding(UTF_8))
-    //            .andExpect(status().isBadRequest());
-    //
-    //     then(memberService).should(times(1)).retrieveMemberByEmail(email);
-    // }
+    @DisplayName("비밀번호 초기화")
+    @Test
+    void testFindPassword() throws Exception {
+        PasswordUpdateResponse response = new PasswordUpdateResponse(email, password);
+        given(memberService.findPassword(email)).willReturn(response);
+
+        mockMvc.perform(patch("/v1/members/password?email={email}", email)
+                   .characterEncoding(UTF_8))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.code", is(OK.value())))
+               .andExpect(jsonPath("$.data.email", is(email)));
+    }
 
 }

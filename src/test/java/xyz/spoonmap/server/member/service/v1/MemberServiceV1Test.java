@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -19,15 +20,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.exception.member.MemberWithdrawException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
 import xyz.spoonmap.server.member.dto.response.EmailResponse;
+import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.enums.VerifyStatus;
 import xyz.spoonmap.server.member.repository.MemberRepository;
+import xyz.spoonmap.server.util.password.BcryptPasswordEncoder;
+import xyz.spoonmap.server.util.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -38,6 +43,9 @@ class MemberServiceV1Test {
 
     @Mock
     MemberRepository memberRepository;
+
+    @Mock
+    PasswordEncoder passwordEncoder = new BcryptPasswordEncoder();
 
     Long id = 1L;
     String email = "email@email.com";
@@ -127,12 +135,40 @@ class MemberServiceV1Test {
         Member member = mock(Member.class);
 
         given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+        given(member.getEmail()).willReturn(email);
 
         EmailResponse response = memberService.retrieveMemberByEmail(email);
 
         assertThat(response.email()).isEqualTo(email);
 
         then(memberRepository).should(times(1)).findByEmail(email);
+    }
+
+    @DisplayName("비밀번호 찾기")
+    @Test
+    void testFindPassword() {
+        Member member = spy(getDummyMember());
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+
+        PasswordUpdateResponse response = memberService.findPassword(email);
+
+        then(memberRepository).should(times(1)).findByEmail(email);
+        String updatedPassword = then(passwordEncoder).should(times(1)).generateRawPassword();
+        String encodedPassword = then(passwordEncoder).should(times(1)).encode(updatedPassword);
+        then(member).should(times(1)).updatePassword(encodedPassword);
+
+        assertThat(response.updatedPassword()).isEqualTo(encodedPassword);
+        assertThat(member.getPassword()).isEqualTo(encodedPassword);
+    }
+
+    private Member getDummyMember() {
+        return Member.builder()
+                     .email(email)
+                     .password(password)
+                     .nickname(nickname)
+                     .name(name)
+                     .build();
     }
 
 }
