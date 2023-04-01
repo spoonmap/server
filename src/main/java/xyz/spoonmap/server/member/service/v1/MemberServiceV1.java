@@ -1,5 +1,6 @@
 package xyz.spoonmap.server.member.service.v1;
 
+import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.exception.member.MemberNotFoundException;
 import xyz.spoonmap.server.exception.member.MemberWithdrawException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
+import xyz.spoonmap.server.member.dto.response.EmailResponse;
+import xyz.spoonmap.server.member.dto.response.MemberResponse;
+import xyz.spoonmap.server.member.dto.response.MemberRetrieveResponse;
 import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
-import xyz.spoonmap.server.member.dto.response.EmailResponse;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.member.service.MemberService;
@@ -72,7 +75,7 @@ public class MemberServiceV1 implements MemberService {
 
     @Transactional
     @Override
-    public PasswordUpdateResponse findPassword(String email) {
+    public PasswordUpdateResponse findPassword(final String email) {
         Member member = memberRepository.findByEmail(email)
                                         .orElseThrow(MemberNotFoundException::new);
 
@@ -81,6 +84,22 @@ public class MemberServiceV1 implements MemberService {
         member.updatePassword(encodedPassword);
 
         return new PasswordUpdateResponse(email, updatedPassword);
+    }
+
+    @Transactional
+    @Override
+    public MemberRetrieveResponse retrieveMembersByNickname(final String nickname) {
+
+        List<MemberResponse> memberResponses = memberRepository.findMembersByNickname(nickname)
+                                                               .stream()
+                                                               .map(this::entityToMemberResponse)
+                                                               .toList();
+
+        return new MemberRetrieveResponse(memberResponses);
+    }
+
+    private MemberResponse entityToMemberResponse(Member member) {
+        return new MemberResponse(member.getId(), member.getAvatar(), member.getNickname(), member.getName());
     }
 
 }

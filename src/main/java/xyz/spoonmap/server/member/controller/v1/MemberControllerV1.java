@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.spoonmap.server.dto.response.Response;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
+import xyz.spoonmap.server.member.dto.response.MemberRetrieveResponse;
 import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
 import xyz.spoonmap.server.member.dto.response.EmailResponse;
@@ -57,6 +58,13 @@ public class MemberControllerV1 {
     @PatchMapping("/password")
     public ResponseEntity<Response<PasswordUpdateResponse>> findPassword(@RequestParam String email) {
         PasswordUpdateResponse response = memberService.findPassword(email);
+        return ResponseEntity.status(OK)
+                             .body(Response.of(OK.value(), response));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Response<MemberRetrieveResponse>> retrieveMembersByNickname(@RequestParam String nickname) {
+        MemberRetrieveResponse response = memberService.retrieveMembersByNickname(nickname);
         return ResponseEntity.status(OK)
                              .body(Response.of(OK.value(), response));
     }
