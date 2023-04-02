@@ -6,4 +6,6 @@ public interface MemberProfileService {
 
     MemberResponse retrieveByNickname(String nickname);
 
+    void updatePassword();
+
 }

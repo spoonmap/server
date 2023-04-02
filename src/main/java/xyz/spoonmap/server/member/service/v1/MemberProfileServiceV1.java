@@ -19,4 +19,10 @@ public class MemberProfileServiceV1 implements MemberProfileService {
         Member member = memberProfileRepository.findByNickname(nickname).orElseThrow(MemberNotFoundException::new);
         return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
     }
+
+    @Override
+    public void updatePassword() {
+
+    }
+
 }

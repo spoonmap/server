@@ -5,10 +5,13 @@ import static org.springframework.http.HttpStatus.OK;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.spoonmap.server.dto.response.Response;
+import xyz.spoonmap.server.member.dto.request.PasswordUpdateRequest;
 import xyz.spoonmap.server.member.dto.response.MemberResponse;
 import xyz.spoonmap.server.member.service.MemberProfileService;
 
@@ -26,4 +29,5 @@ public class MemberProfileControllerV1 {
                              .body(Response.of(OK.value(), memberResponse));
     }
 
+    // @PatchMappi
 }
