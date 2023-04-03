@@ -1,6 +1,6 @@
 package xyz.spoonmap.server.member.enums;
 
-public enum Status {
+public enum VerifyStatus {
 
     SIGNUP, VERIFIED
 

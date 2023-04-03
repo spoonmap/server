@@ -1,6 +1,6 @@
 package xyz.spoonmap.server.member.entity;
 
-import static xyz.spoonmap.server.member.enums.Status.*;
+import static xyz.spoonmap.server.member.enums.VerifyStatus.*;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import xyz.spoonmap.server.member.enums.Status;
+import xyz.spoonmap.server.member.enums.VerifyStatus;
 
 @Table(name = "members")
 @Entity
@@ -70,7 +70,7 @@ public class Member {
 
     @Column(name = "verify_status")
     @Enumerated(EnumType.STRING)
-    private Status verifyStatus;
+    private VerifyStatus verifyStatus;
 
     @Builder
     public Member(String name, String email, String password, String nickname, String avatar) {
@@ -88,6 +88,10 @@ public class Member {
 
     public void verify() {
         this.verifyStatus = VERIFIED;
+    }
+
+    public void updatePassword(final String password) {
+        this.password = password;
     }
 
 }

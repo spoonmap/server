@@ -1,14 +1,18 @@
 package xyz.spoonmap.server.member.service.v1;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,13 +20,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+import xyz.spoonmap.server.exception.member.MemberWithdrawException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
+import xyz.spoonmap.server.member.dto.response.EmailResponse;
+import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;
 import xyz.spoonmap.server.member.dto.response.SignupResponse;
 import xyz.spoonmap.server.member.entity.Member;
-import xyz.spoonmap.server.member.enums.Status;
+import xyz.spoonmap.server.member.enums.VerifyStatus;
 import xyz.spoonmap.server.member.repository.MemberRepository;
+import xyz.spoonmap.server.util.password.BcryptPasswordEncoder;
+import xyz.spoonmap.server.util.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -34,14 +44,18 @@ class MemberServiceV1Test {
     @Mock
     MemberRepository memberRepository;
 
+    @Mock
+    PasswordEncoder passwordEncoder = new BcryptPasswordEncoder();
+
+    Long id = 1L;
+    String email = "email@email.com";
+    String password = "passw0rd";
+    String nickname = "Nick";
+    String name = "홍길동";
+
     @DisplayName("회원가입")
     @Test
     void signUp() {
-
-        String email = "email@email.com";
-        String password = "passw0rd";
-        String nickname = "Nick";
-        String name = "홍길동";
 
         SignupRequest request = new SignupRequest(email, password, nickname, name);
 
@@ -61,8 +75,6 @@ class MemberServiceV1Test {
     @DisplayName("회원가입 후 이메일 인증")
     @Test
     void verify() {
-        Long id = 1L;
-        String email = "email@email.com";
         Member member = spy(Member.builder()
                                   .email(email)
                                   .password("passw0rd")
@@ -80,7 +92,83 @@ class MemberServiceV1Test {
 
         assertThat(verify.id()).isEqualTo(id);
         assertThat(verify.email()).isEqualTo(email);
-        assertThat(member.getVerifyStatus()).isEqualTo(Status.VERIFIED);
+        assertThat(member.getVerifyStatus()).isEqualTo(VerifyStatus.VERIFIED);
+    }
+
+
+    @DisplayName("회원탈퇴")
+    @Test
+    void testWithdraw() {
+        Member member = mock(Member.class);
+
+        given(member.getEmail()).willReturn(email);
+        given(member.getDeletedAt()).willReturn(null);
+        willDoNothing().given(member).withdraw();
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+
+        EmailResponse emailResponse = memberService.withdraw(email);
+
+        assertThat(emailResponse.email()).isEqualTo(email);
+
+        then(member).should(times(1)).withdraw();
+        then(member).should(times(1)).getEmail();
+        then(member).should(times(1)).getDeletedAt();
+        then(memberRepository).should(times(1)).findByEmail(email);
+    }
+
+    @DisplayName("이미 회원탈퇴한 회원 탈퇴 시도")
+    @Test
+    void testWithdrawFail() {
+        Member member = mock(Member.class);
+
+        given(member.getDeletedAt()).willReturn(LocalDateTime.now());
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+
+        assertThatThrownBy(() -> memberService.withdraw(email))
+            .isInstanceOf(MemberWithdrawException.class);
+    }
+
+    @DisplayName("이메일 조회")
+    @Test
+    void testRetrieveMemberByEmail() {
+        Member member = mock(Member.class);
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+        given(member.getEmail()).willReturn(email);
+
+        EmailResponse response = memberService.retrieveMemberByEmail(email);
+
+        assertThat(response.email()).isEqualTo(email);
+
+        then(memberRepository).should(times(1)).findByEmail(email);
+    }
+
+    @DisplayName("비밀번호 찾기")
+    @Test
+    void testFindPassword() {
+        Member member = spy(getDummyMember());
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+
+        PasswordUpdateResponse response = memberService.findPassword(email);
+
+        then(memberRepository).should(times(1)).findByEmail(email);
+        String updatedPassword = then(passwordEncoder).should(times(1)).generateRawPassword();
+        String encodedPassword = then(passwordEncoder).should(times(1)).encode(updatedPassword);
+        then(member).should(times(1)).updatePassword(encodedPassword);
+
+        assertThat(response.updatedPassword()).isEqualTo(encodedPassword);
+        assertThat(member.getPassword()).isEqualTo(encodedPassword);
+    }
+
+    private Member getDummyMember() {
+        return Member.builder()
+                     .email(email)
+                     .password(password)
+                     .nickname(nickname)
+                     .name(name)
+                     .build();
     }
 
 }
