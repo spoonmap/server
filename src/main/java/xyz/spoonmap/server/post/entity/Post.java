@@ -1,30 +1,26 @@
 package xyz.spoonmap.server.post.entity;
 
 
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.member.entity.Member;
+import xyz.spoonmap.server.photo.entity.Photo;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.entity.Restaurant;
+
+import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -53,11 +49,15 @@ public class Post {
     @NotNull
     private Category category;
 
+    @OneToMany
+    @JoinColumn(name = "photo_no")
+    private List<Photo> photos;
+
     @NotNull
     @Size(min = 1, max = 40)
     private String title;
 
-    @Size(min = 1, max = 1000)
+    @Size(max = 1000)
     private String content;
 
     @Column(name = "meal_time")
@@ -67,6 +67,8 @@ public class Post {
     private MealTime mealTime;
 
     @NotNull
+    @Max(value = 10)
+    @PositiveOrZero
     private Byte starRating;
 
     @CreatedDate
@@ -81,17 +83,34 @@ public class Post {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public Post(Member member, Restaurant restaurant, Category category, String title, String content,
-            MealTime mealTime,
-            Byte starRating) {
+    @Builder
+    public Post(Member member, Restaurant restaurant, Category category, List<Photo> photos, String title,
+                String content, MealTime mealTime, Byte starRating) {
         this.member = member;
         this.restaurant = restaurant;
         this.category = category;
+        this.photos = photos;
         this.title = title;
         this.content = content;
         this.mealTime = mealTime;
         this.starRating = starRating;
+        this.createdAt = LocalDateTime.now();
     }
 
+    public void update(Restaurant restaurant, Category category, List<Photo> photos, String title,
+                       String content, MealTime mealTime, Byte starRating) {
+        this.restaurant = restaurant;
+        this.category = category;
+        this.photos = photos;
+        this.title = title;
+        this.content = content;
+        this.mealTime = mealTime;
+        this.starRating = starRating;
+        this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }
 
