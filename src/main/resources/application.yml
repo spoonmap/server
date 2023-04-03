@@ -24,6 +24,9 @@ spring:
       hibernate:
         format_sql: true
 
+jwt:
+  secret: H@McQfTjWnZr4u7x!A%C*F-JaNdRgUkX
+
 decorator:
   datasource:
     p6spy:
