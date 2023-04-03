@@ -154,6 +154,7 @@ Temporary Items
 ### Gradle ###
 .gradle
 **/build/
+**/build/generate
 !src/**/build/
 
 # Ignore Gradle GUI config
