@@ -62,8 +62,8 @@ public class Member {
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
