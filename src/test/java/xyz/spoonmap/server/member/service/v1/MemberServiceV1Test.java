@@ -20,7 +20,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.exception.member.MemberWithdrawException;
@@ -31,8 +33,6 @@ import xyz.spoonmap.server.member.dto.response.SignupResponse;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.enums.VerifyStatus;
 import xyz.spoonmap.server.member.repository.MemberRepository;
-import xyz.spoonmap.server.util.password.BcryptPasswordEncoder;
-import xyz.spoonmap.server.util.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -45,7 +45,7 @@ class MemberServiceV1Test {
     MemberRepository memberRepository;
 
     @Mock
-    PasswordEncoder passwordEncoder = new BcryptPasswordEncoder();
+    PasswordEncoder passwordEncoder;
 
     Long id = 1L;
     String email = "email@email.com";
@@ -148,18 +148,18 @@ class MemberServiceV1Test {
     @Test
     void testFindPassword() {
         Member member = spy(getDummyMember());
+        String encryptedPassword = "password";
 
         given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+        given(passwordEncoder.encode(anyString())).willReturn(encryptedPassword);
 
         PasswordUpdateResponse response = memberService.findPassword(email);
 
         then(memberRepository).should(times(1)).findByEmail(email);
-        String updatedPassword = then(passwordEncoder).should(times(1)).generateRawPassword();
-        String encodedPassword = then(passwordEncoder).should(times(1)).encode(updatedPassword);
-        then(member).should(times(1)).updatePassword(encodedPassword);
+        then(passwordEncoder).should(times(1)).encode(anyString());
+        then(member).should(times(1)).updatePassword(encryptedPassword);
 
-        assertThat(response.updatedPassword()).isEqualTo(encodedPassword);
-        assertThat(member.getPassword()).isEqualTo(encodedPassword);
+        assertThat(response.email()).isEqualTo(email);
     }
 
     private Member getDummyMember() {
