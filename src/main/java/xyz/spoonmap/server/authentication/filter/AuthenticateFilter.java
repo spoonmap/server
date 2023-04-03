@@ -21,11 +21,11 @@ import xyz.spoonmap.server.authentication.dto.LoginRequest;
 import xyz.spoonmap.server.exception.member.UnauthorizedException;
 
 @Slf4j
-public class JwtAuthenticateFilter extends UsernamePasswordAuthenticationFilter {
+public class AuthenticateFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtGenerator jwtGenerator;
 
-    public JwtAuthenticateFilter(AuthenticationManager authenticationManager, JwtGenerator jwtGenerator) {
+    public AuthenticateFilter(AuthenticationManager authenticationManager, JwtGenerator jwtGenerator) {
         super(authenticationManager);
         this.jwtGenerator = jwtGenerator;
     }
@@ -51,8 +51,11 @@ public class JwtAuthenticateFilter extends UsernamePasswordAuthenticationFilter 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
-        String token = jwtGenerator.createToken(authResult.getName());
-        Cookie jwtCookie = new Cookie(JwtGenerator.COOKIE_NAME, token);
+        String token = jwtGenerator.createJwt(authResult.getName());
+        Cookie jwtCookie = new Cookie(JwtGenerator.JWT_COOKIE, token);
+        jwtCookie.setHttpOnly(true);
+        jwtCookie.setPath("/");
+
         log.info("token = {}", token);
         response.addCookie(jwtCookie);
         response.setStatus(OK.value());

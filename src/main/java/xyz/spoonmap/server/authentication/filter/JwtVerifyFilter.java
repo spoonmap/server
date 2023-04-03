@@ -31,8 +31,7 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
             return;
         }
 
-        String jwt = token.split(" ")[1];
-        Authentication authentication = jwtGenerator.getAuthentication(jwt);
+        Authentication authentication = jwtGenerator.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
