@@ -47,6 +47,7 @@ public class WebSecurityConfig {
         http
             .authorizeRequests()
             .antMatchers("**/login", "**/signup").permitAll()
+            .antMatchers("**/members/profile/**").hasRole("ROLE_USER")
             .antMatchers("/**").permitAll();
 
         http

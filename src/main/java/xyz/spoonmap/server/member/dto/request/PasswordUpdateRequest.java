@@ -6,7 +6,7 @@ import javax.validation.constraints.Size;
 public record PasswordUpdateRequest(
 
     @NotBlank
-    @Size(min = 8, max = 10)
+    @Size(min = 8, max = 20)
     String password
 
 ) {
