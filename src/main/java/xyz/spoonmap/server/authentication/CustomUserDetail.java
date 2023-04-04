@@ -3,6 +3,7 @@ package xyz.spoonmap.server.authentication;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,6 +13,7 @@ import xyz.spoonmap.server.member.entity.Member;
 @RequiredArgsConstructor
 public class CustomUserDetail implements UserDetails {
 
+    @Getter
     private final Member member;
 
     @Override
