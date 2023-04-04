@@ -5,12 +5,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.exception.member.MemberNotFoundException;
 import xyz.spoonmap.server.member.dto.response.EmailResponse;
 import xyz.spoonmap.server.member.dto.response.MemberResponse;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.repository.MemberProfileRepository;
-import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.member.service.MemberProfileService;
 
 @Transactional(readOnly = true)
@@ -19,7 +19,6 @@ import xyz.spoonmap.server.member.service.MemberProfileService;
 public class MemberProfileServiceV1 implements MemberProfileService {
 
     private final MemberProfileRepository memberProfileRepository;
-    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -31,16 +30,23 @@ public class MemberProfileServiceV1 implements MemberProfileService {
     @Transactional
     @Override
     public EmailResponse updatePassword(final UserDetails userDetails, final String newPassword) {
-        Member member = (CusomUserDetails) userDetails.
-
+        Member member = ((CustomUserDetail) userDetails).getMember();
         member.updatePassword(passwordEncoder.encode(newPassword));
 
-        return new EmailResponse(email);
+        memberProfileRepository.save(member);
+
+        return new EmailResponse(member.getEmail());
     }
 
+    @Transactional
     @Override
     public MemberResponse updateNickname(final UserDetails userDetails, final String newNickname) {
-        return null;
+        Member member = ((CustomUserDetail) userDetails).getMember();
+        member.updateNickname(newNickname);
+
+        memberProfileRepository.save(member);
+
+        return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
     }
 
 }
