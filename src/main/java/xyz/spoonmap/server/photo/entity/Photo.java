@@ -48,7 +48,6 @@ public class Photo {
         this.originName = originName;
         this.url = url;
         this.post = post;
-        this.createdAt = LocalDateTime.now();
     }
 
     public void delete() {

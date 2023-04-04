@@ -84,7 +84,6 @@ public class Post {
         this.content = content;
         this.mealTime = mealTime;
         this.starRating = starRating;
-        this.createdAt = LocalDateTime.now();
     }
 
     public void update(Restaurant restaurant, Category category, String title, String content, MealTime mealTime, Byte starRating) {
@@ -94,7 +93,6 @@ public class Post {
         this.content = content;
         this.mealTime = mealTime;
         this.starRating = starRating;
-        this.modifiedAt = LocalDateTime.now();
     }
 
     public void delete() {
