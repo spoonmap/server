@@ -7,7 +7,6 @@ import lombok.Getter;
 public enum MealTime {
     아침("아침"), 점심("점심"), 저녁("저녁");
 
-    @Getter
     private final String value;
 
     MealTime(String value) {

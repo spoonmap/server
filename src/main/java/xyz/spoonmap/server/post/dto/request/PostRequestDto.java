@@ -1,21 +1,13 @@
 package xyz.spoonmap.server.post.dto.request;
 
-import java.util.List;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
-
-import xyz.spoonmap.server.photo.dto.request.PhotoRequestDto;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.dto.request.RestaurantRequestDto;
+
+import javax.validation.constraints.*;
 
 public record PostRequestDto(
         @NotNull(message = "식당 정보가 비어있습니다.")
         RestaurantRequestDto restaurant,
-
-        List<PhotoRequestDto> photos,
 
         @NotNull(message = "카테고리가 비어있습니다.")
         Long categoryId,

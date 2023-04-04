@@ -1,8 +1,10 @@
 package xyz.spoonmap.server.post.service;
 
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 import xyz.spoonmap.server.post.dto.request.PostRequestDto;
 import xyz.spoonmap.server.post.dto.response.PostResponseDto;
+
+import java.util.List;
 
 public interface PostService {
 
@@ -10,9 +12,9 @@ public interface PostService {
 
     PostResponseDto getPost(Long id);
 
-    PostResponseDto createPost(PostRequestDto postRequestDto, Long memberId);
+    PostResponseDto createPost(Long memberId, PostRequestDto postRequestDto, List<MultipartFile> files);
 
-    PostResponseDto updatePost(Long id, PostRequestDto postRequestDto);
+    PostResponseDto updatePost(Long memberId, Long id, PostRequestDto postRequestDto, List<MultipartFile> files);
 
-    void deletePost(Long id);
+    PostResponseDto deletePost(Long memberId, Long id);
 }

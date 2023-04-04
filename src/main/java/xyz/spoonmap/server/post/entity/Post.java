@@ -4,13 +4,11 @@ package xyz.spoonmap.server.post.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.member.entity.Member;
-import xyz.spoonmap.server.photo.entity.Photo;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.entity.Restaurant;
 
@@ -20,7 +18,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -49,10 +46,6 @@ public class Post {
     @NotNull
     private Category category;
 
-    @OneToMany
-    @JoinColumn(name = "photo_no")
-    private List<Photo> photos;
-
     @NotNull
     @Size(min = 1, max = 40)
     private String title;
@@ -63,7 +56,6 @@ public class Post {
     @Column(name = "meal_time")
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Size(min = 1, max = 2)
     private MealTime mealTime;
 
     @NotNull
@@ -84,12 +76,10 @@ public class Post {
     private LocalDateTime deletedAt;
 
     @Builder
-    public Post(Member member, Restaurant restaurant, Category category, List<Photo> photos, String title,
-                String content, MealTime mealTime, Byte starRating) {
+    public Post(Member member, Restaurant restaurant, Category category, String title, String content, MealTime mealTime, Byte starRating) {
         this.member = member;
         this.restaurant = restaurant;
         this.category = category;
-        this.photos = photos;
         this.title = title;
         this.content = content;
         this.mealTime = mealTime;
@@ -97,11 +87,9 @@ public class Post {
         this.createdAt = LocalDateTime.now();
     }
 
-    public void update(Restaurant restaurant, Category category, List<Photo> photos, String title,
-                       String content, MealTime mealTime, Byte starRating) {
+    public void update(Restaurant restaurant, Category category, String title, String content, MealTime mealTime, Byte starRating) {
         this.restaurant = restaurant;
         this.category = category;
-        this.photos = photos;
         this.title = title;
         this.content = content;
         this.mealTime = mealTime;

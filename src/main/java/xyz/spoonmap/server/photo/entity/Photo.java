@@ -1,13 +1,7 @@
 package xyz.spoonmap.server.photo.entity;
 
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Builder;
@@ -15,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import xyz.spoonmap.server.post.entity.Post;
 
 @Table(name = "photos")
 @Entity
@@ -37,6 +32,10 @@ public class Photo {
     @Size(min = 3, max = 500)
     private String url;
 
+    @ManyToOne
+    @JoinColumn(name = "post_no")
+    private Post post;
+
     @CreatedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -45,9 +44,10 @@ public class Photo {
     private LocalDateTime deletedAt;
 
     @Builder
-    public Photo(String originName, String url) {
+    public Photo(String originName, String url, Post post) {
         this.originName = originName;
         this.url = url;
+        this.post = post;
         this.createdAt = LocalDateTime.now();
     }
 
