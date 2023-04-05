@@ -1,5 +1,6 @@
 package xyz.spoonmap.server.relation.entity;
 
+import static lombok.AccessLevel.PROTECTED;
 import static xyz.spoonmap.server.relation.enums.RelationStatus.ACCEPTED;
 import static xyz.spoonmap.server.relation.enums.RelationStatus.REJECTED;
 import static xyz.spoonmap.server.relation.enums.RelationStatus.REQUESTED;
@@ -17,7 +18,6 @@ import javax.persistence.MapsId;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,7 +27,7 @@ import xyz.spoonmap.server.relation.enums.RelationStatus;
 
 @Table(name = "relations")
 @Entity
-@NoArgsConstructor
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class Relation {
 
@@ -51,7 +51,7 @@ public class Relation {
     private RelationStatus relationStatus;
 
     @Embeddable
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @NoArgsConstructor(access = PROTECTED)
     @AllArgsConstructor
     @Getter
     @EqualsAndHashCode
