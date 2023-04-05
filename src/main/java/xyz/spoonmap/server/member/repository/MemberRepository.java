@@ -8,5 +8,4 @@ import xyz.spoonmap.server.member.entity.Member;
 public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
     Optional<Member> findByEmail(String email);
-
 }
