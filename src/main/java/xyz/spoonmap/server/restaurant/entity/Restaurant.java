@@ -6,6 +6,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,18 +23,21 @@ public class Restaurant {
     @Column(name = "restaurant_no")
     private Long id;
 
-    @Column(nullable = false, length = 20)
+    @NotNull
+    @Size(min = 1, max = 20)
     private String name;
 
-    @Column(nullable = false, length = 50)
+    @NotNull
+    @Size(min = 1, max = 50)
     private String address;
 
-    @Column(nullable = false)
+    @NotNull
     private Float x;
 
-    @Column(nullable = false)
+    @NotNull
     private Float y;
 
+    @Builder
     public Restaurant(String name, String address, Float x, Float y) {
         this.name = name;
         this.address = address;

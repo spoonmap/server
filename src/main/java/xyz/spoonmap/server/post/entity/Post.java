@@ -1,19 +1,7 @@
 package xyz.spoonmap.server.post.entity;
 
 
-import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,6 +11,13 @@ import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.entity.Restaurant;
+
+import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "posts")
@@ -36,33 +31,41 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_no")
+    @NotNull
     private Member member;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_no")
+    @NotNull
     private Restaurant restaurant;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_no")
+    @NotNull
     private Category category;
 
-    @Column(nullable = false, length = 40)
+    @NotNull
+    @Size(min = 1, max = 40)
     private String title;
 
-    @Column(length = 1000)
+    @Size(max = 1000)
     private String content;
 
-    @Column(name = "meal_time", nullable = false)
+    @Column(name = "meal_time")
     @Enumerated(EnumType.STRING)
+    @NotNull
     private MealTime mealTime;
 
-    @Column(nullable = false)
+    @NotNull
+    @Max(value = 10)
+    @PositiveOrZero
     private Byte starRating;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
+    @NotNull
     private LocalDateTime createdAt;
 
     @LastModifiedDate
@@ -72,9 +75,8 @@ public class Post {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    public Post(Member member, Restaurant restaurant, Category category, String title, String content,
-            MealTime mealTime,
-            Byte starRating) {
+    @Builder
+    public Post(Member member, Restaurant restaurant, Category category, String title, String content, MealTime mealTime, Byte starRating) {
         this.member = member;
         this.restaurant = restaurant;
         this.category = category;
@@ -82,7 +84,19 @@ public class Post {
         this.content = content;
         this.mealTime = mealTime;
         this.starRating = starRating;
-        this.createdAt = LocalDateTime.now();
+    }
+
+    public void update(Restaurant restaurant, Category category, String title, String content, MealTime mealTime, Byte starRating) {
+        this.restaurant = restaurant;
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.mealTime = mealTime;
+        this.starRating = starRating;
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }
 
