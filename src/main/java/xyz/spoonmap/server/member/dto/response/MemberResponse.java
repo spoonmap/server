@@ -5,5 +5,5 @@ public record MemberResponse(
     String name,
     String nickname,
     String profileUrl
-    ) {
+) {
 }

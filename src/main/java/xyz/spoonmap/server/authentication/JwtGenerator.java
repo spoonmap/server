@@ -30,8 +30,9 @@ public class JwtGenerator {
 
     // 유효시간: 1시간
     private static final long EXPIRATION = 1000L * 60 * 60;
-    public static final String COOKIE_NAME = "JWT";
-    public static final String BEARER = "BEARER";
+    private static final long REFRESH_EXPIRATION = 1000L * 60 * 60 * 6;
+    public static final String JWT_COOKIE = "FOR_LOGIN";
+    public static final String REFRESH_COOKIE = "FOR_REFRESH";
 
     private final UserDetailsService userDetailsService;
     private final Key key;
@@ -41,19 +42,25 @@ public class JwtGenerator {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createToken(final String email) {
+    public String createJwt(final String email) {
+        return createToken(email, EXPIRATION);
+    }
+
+    public String createRefreshToken(final String email) {
+        return createToken(email, REFRESH_EXPIRATION);
+    }
+
+    private String createToken(final String email, final long expiration) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("roles", "ROLE_USER");
         Date issuedAt = new Date();
 
-        String jwt = Jwts.builder()
-                             .setClaims(claims)
-                             .setIssuedAt(issuedAt)
-                             .setExpiration(new Date(issuedAt.getTime() + EXPIRATION))
-                             .signWith(key, SignatureAlgorithm.HS256)
-                             .compact();
-
-        return BEARER + " " + jwt;
+        return Jwts.builder()
+                   .setClaims(claims)
+                   .setIssuedAt(issuedAt)
+                   .setExpiration(new Date(issuedAt.getTime() + expiration))
+                   .signWith(key, SignatureAlgorithm.HS256)
+                   .compact();
     }
 
     public Authentication getAuthentication(final String token) {
@@ -73,7 +80,7 @@ public class JwtGenerator {
 
     public String getToken(HttpServletRequest request) {
         Cookie jwt = Arrays.stream(request.getCookies())
-                           .filter(cookie -> Objects.equals(cookie.getName(), COOKIE_NAME))
+                           .filter(cookie -> Objects.equals(cookie.getName(), JWT_COOKIE))
                            .findFirst()
                            .orElseThrow(UnauthorizedException::new);
 
@@ -97,18 +104,7 @@ public class JwtGenerator {
     }
 
     private boolean verifyToken(final String token) {
-        if (isNotBearerToken(token)) {
-            return false;
-        }
 
-        return isValidYet(token);
-    }
-
-    private boolean isNotBearerToken(final String token) {
-        return token.substring(0, BEARER.length()).equalsIgnoreCase(BEARER);
-    }
-
-    private boolean isValidYet(final String token) {
         String jwt = token.split(" ")[1].trim();
         Jws<Claims> claims = Jwts.parserBuilder()
                                  .setSigningKey(key)
