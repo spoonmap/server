@@ -5,6 +5,6 @@ import xyz.spoonmap.server.member.dto.response.MemberResponse;
 
 public record FollowResponse(
     Long id,
-    List<MemberResponse> followers
+    List<MemberResponse> follows
 ) {
 }

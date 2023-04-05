@@ -13,7 +13,7 @@ import xyz.spoonmap.server.relation.dto.response.FollowerResponse;
 import xyz.spoonmap.server.relation.service.RelationService;
 
 @RestController
-@RequestMapping("/v1/members/follower")
+@RequestMapping("/v1/members/followers")
 @RequiredArgsConstructor
 public class FollowerControllerV1 {
 
