@@ -18,11 +18,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       ## application properties
-      - name: make application.properties
+      - name: make application.yml
         run: |
           cd ./src/main/resources
-          touch ./application.properties
-          echo "${{ secrets.PROPERTIES }}" > ./application.properties
+          touch ./application.yml
+          echo "${{ secrets.PROPERTIES }}" > ./application.yml
+        shell: bash
+      ## application properties for test
+      - name: make application.yml for test
+        run: |
+          cd ./src/test
+          mkdir resources && cd resources
+          touch ./application.yml
+          echo "${{ secrets.TEST_PROPERTIES }}" > ./application.yml
         shell: bash
       # Gradle build
       - name: Validate Gradle wrapper
