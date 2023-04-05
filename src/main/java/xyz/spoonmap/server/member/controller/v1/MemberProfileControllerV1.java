@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.OK;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,8 +33,8 @@ public class MemberProfileControllerV1 {
     }
 
     @PatchMapping
-    public ResponseEntity<Response<EmailResponse>> updatePassword(@RequestBody @Valid PasswordUpdateRequest request) {
-        EmailResponse response = memberProfileService.updatePassword(request);
+    public ResponseEntity<Response<EmailResponse>> updatePassword(UserDetails userDetails, @RequestBody @Valid PasswordUpdateRequest request) {
+        EmailResponse response = memberProfileService.updatePassword(userDetails, request.password());
         return ResponseEntity.status(OK)
                              .body(Response.of(OK.value(), response));
     }
