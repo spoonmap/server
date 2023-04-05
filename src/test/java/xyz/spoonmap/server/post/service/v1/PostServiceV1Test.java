@@ -79,7 +79,7 @@ class PostServiceV1Test {
 
         List<PostResponseDto> postResponseList = postServiceV1.getAllPosts();
 
-        assertThat(postResponseList.size()).isEqualTo(1);
+        assertThat(postResponseList).hasSize(1);
         assertThat(postResponseList.get(0).title()).isEqualTo(posts.get(0).getTitle());
     }
 

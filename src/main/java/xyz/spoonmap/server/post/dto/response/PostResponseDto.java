@@ -1,19 +1,19 @@
 package xyz.spoonmap.server.post.dto.response;
 
-import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.dto.response.RestaurantResponseDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PostResponseDto(
         Long id,
         Long authorId,
         String title,
-        String[] photoUrls,
+        List<String> photoUrls,
         RestaurantResponseDto restaurant,
-        Category category,
+        String categoryName,
         Byte starRating,
         String content,
         MealTime mealTime,
@@ -21,7 +21,7 @@ public record PostResponseDto(
         LocalDateTime modifiedAt
 ) {
 
-    public PostResponseDto(Post post, String[] urls) {
+    public PostResponseDto(Post post, List<String> urls) {
         this(post.getId(),
                 post.getMember().getId(),
                 post.getTitle(),
@@ -31,7 +31,7 @@ public record PostResponseDto(
                         post.getRestaurant().getAddress(),
                         post.getRestaurant().getX(),
                         post.getRestaurant().getY()),
-                post.getCategory(),
+                post.getCategory().getName(),
                 post.getStarRating(),
                 post.getContent(),
                 post.getMealTime(),

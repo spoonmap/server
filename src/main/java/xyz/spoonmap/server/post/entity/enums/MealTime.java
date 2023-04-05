@@ -2,7 +2,9 @@ package xyz.spoonmap.server.post.entity.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 public enum MealTime {
     아침("아침"), 점심("점심"), 저녁("저녁");
@@ -15,12 +17,10 @@ public enum MealTime {
 
     @JsonCreator
     public static MealTime from(String value) {
-        for (MealTime mealTime : MealTime.values()) {
-            if (mealTime.getValue().equals(value)) {
-                return mealTime;
-            }
-        }
-        return null;
+        return Arrays.stream(MealTime.values())
+                .filter(mealTime -> Objects.equals(mealTime.getValue(), value))
+                .findFirst()
+                .orElse(MealTime.저녁);
     }
 
     @JsonValue

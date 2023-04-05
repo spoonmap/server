@@ -42,31 +42,26 @@ public class PostServiceV1 implements PostService {
 
     @Override
     public List<PostResponseDto> getAllPosts() {
-        List<Post> posts = this.postRepository.findAll();
-
-        posts = posts.stream().filter(post -> Objects.isNull(post.getDeletedAt())).toList();
+        List<Post> posts = this.postRepository.findByDeletedAtIsNull();
 
         return posts.stream().map(post -> {
-            String[] urls = photoRepository.findByPostId(post.getId())
-                    .stream()
-                    .filter(photo -> Objects.isNull(photo.getDeletedAt()))
-                    .map(Photo::getUrl)
-                    .toArray(String[]::new);
+            List<String> urls = photoRepository.findByPostIdAndDeletedAtIsNull(post.getId())
+                                               .stream()
+                                               .map(Photo::getUrl)
+                                               .toList();
             return new PostResponseDto(post, urls);
         }).toList();
     }
 
     @Override
     public PostResponseDto getPost(Long id) {
-        Post post = this.postRepository.findById(id).orElseThrow(PostNotFoundException::new);
-        if (Objects.nonNull(post.getDeletedAt())) {
-            throw new PostNotFoundException();
-        }
-        String[] urls = photoRepository.findByPostId(post.getId())
-                .stream()
-                .filter(photo -> Objects.isNull(photo.getDeletedAt()))
-                .map(Photo::getUrl)
-                .toArray(String[]::new);
+        Post post = this.postRepository.findPostByIdAndDeletedAtIsNull(id)
+                                       .orElseThrow(PostNotFoundException::new);
+
+        List<String> urls = photoRepository.findByPostIdAndDeletedAtIsNull(post.getId())
+                                           .stream()
+                                           .map(Photo::getUrl)
+                                           .toList();
         return new PostResponseDto(post, urls);
     }
 
@@ -76,27 +71,28 @@ public class PostServiceV1 implements PostService {
         Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
         Restaurant restaurant = Restaurant.builder()
-                .name(postRequestDto.restaurant().name())
-                .address(postRequestDto.restaurant().address())
-                .x(postRequestDto.restaurant().x())
-                .y(postRequestDto.restaurant().y()).build();
+                                          .name(postRequestDto.restaurant().name())
+                                          .address(postRequestDto.restaurant().address())
+                                          .x(postRequestDto.restaurant().x())
+                                          .y(postRequestDto.restaurant().y()).build();
         restaurantRepository.save(restaurant);
 
         Category category = categoryRepository.findById(postRequestDto.categoryId())
-                .orElseThrow(CategoryNotFoundException::new);
+                                              .orElseThrow(CategoryNotFoundException::new);
 
         Post post = Post.builder()
-                .member(member)
-                .restaurant(restaurant)
-                .category(category)
-                .title(postRequestDto.title())
-                .content(postRequestDto.content())
-                .mealTime(postRequestDto.mealTime())
-                .starRating(postRequestDto.starRating()).build();
+                        .member(member)
+                        .restaurant(restaurant)
+                        .category(category)
+                        .title(postRequestDto.title())
+                        .content(postRequestDto.content())
+                        .mealTime(postRequestDto.mealTime())
+                        .starRating(postRequestDto.starRating()).build();
         this.postRepository.save(post);
 
-        List<Photo> photos = savePhotosFromFile(post, files);
-        String[] urls = photos.stream().map(Photo::getUrl).toArray(String[]::new);
+        List<String> urls = savePhotosFromFile(post, files).stream()
+                                                           .map(Photo::getUrl)
+                                                           .toList();
 
         return new PostResponseDto(post, urls);
     }
@@ -104,48 +100,50 @@ public class PostServiceV1 implements PostService {
     @Override
     @Transactional
     public PostResponseDto updatePost(Long memberId, Long id, PostRequestDto postRequestDto, List<MultipartFile> files) {
-        Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+        Post post = postRepository.findPostByIdAndDeletedAtIsNull(id)
+                                  .orElseThrow(PostNotFoundException::new);
 
         if (!Objects.equals(post.getMember().getId(), memberId)) {
             throw new PostNotFoundException(); // TODO: UnAuthorized (401)로 수정
         }
 
-        Category category = categoryRepository.findById(postRequestDto.categoryId()).orElseThrow(CategoryNotFoundException::new);
+        Category category = categoryRepository.findById(postRequestDto.categoryId())
+                                              .orElseThrow(CategoryNotFoundException::new);
 
         Restaurant restaurant = Restaurant.builder()
-                .name(postRequestDto.restaurant().name())
-                .address(postRequestDto.restaurant().address())
-                .x(postRequestDto.restaurant().x())
-                .y(postRequestDto.restaurant().y()).build();
+                                          .name(postRequestDto.restaurant().name())
+                                          .address(postRequestDto.restaurant().address())
+                                          .x(postRequestDto.restaurant().x())
+                                          .y(postRequestDto.restaurant().y()).build();
         restaurantRepository.save(restaurant);
 
         post.update(restaurant, category, postRequestDto.title(), postRequestDto.content(), postRequestDto.mealTime(), postRequestDto.starRating());
 
         List<Photo> photos = photoRepository.findByPostId(post.getId());
-        photoRepository.deleteAll(photos);
+        photos.forEach(Photo::delete);
 
-        List<Photo> newPhotos = savePhotosFromFile(post, files);
-        String[] urls = newPhotos.stream().map(Photo::getUrl).toArray(String[]::new);
-
+        List<String> urls = savePhotosFromFile(post, files).stream()
+                                                           .map(Photo::getUrl)
+                                                           .toList();
         return new PostResponseDto(post, urls);
     }
 
     private List<Photo> savePhotosFromFile(Post post, List<MultipartFile> files) {
         List<Photo> photos = Optional.ofNullable(files)
-                .orElseGet(Collections::emptyList)
-                .stream()
-                .map(file -> {
-                    try {
-                        return Photo.builder()
-                                .originName(file.getOriginalFilename())
-                                .url(s3Adapter.upload(file))
-                                .post(post)
-                                .build();
-                    } catch (IOException e) {
-                        throw new PhotoUploadException();
-                    }
-                })
-                .toList();
+                                     .orElseGet(Collections::emptyList)
+                                     .stream()
+                                     .map(file -> {
+                                         try {
+                                             return Photo.builder()
+                                                         .originName(file.getOriginalFilename())
+                                                         .url(s3Adapter.upload(file))
+                                                         .post(post)
+                                                         .build();
+                                         } catch (IOException e) {
+                                             throw new PhotoUploadException();
+                                         }
+                                     })
+                                     .toList();
         photoRepository.saveAll(photos);
         return photos;
     }
@@ -153,22 +151,21 @@ public class PostServiceV1 implements PostService {
     @Override
     @Transactional
     public PostResponseDto deletePost(Long memberId, Long id) {
-        Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+        Post post = postRepository.findPostByIdAndDeletedAtIsNull(id)
+                                  .orElseThrow(PostNotFoundException::new);
+
         if (!Objects.equals(post.getMember().getId(), memberId)) {
             throw new PostNotFoundException(); // TODO: UnAuthorized
         }
-
         post.delete();
 
         List<Photo> photos = photoRepository.findByPostId(id);
         photos.forEach(Photo::delete);
 
-        String[] urls = photoRepository.findByPostId(post.getId())
-                .stream()
-                .filter(photo -> Objects.isNull(photo.getDeletedAt()))
-                .map(Photo::getUrl)
-                .toArray(String[]::new);
-
+        List<String> urls = photoRepository.findByPostIdAndDeletedAtIsNull(post.getId())
+                                           .stream()
+                                           .map(Photo::getUrl)
+                                           .toList();
         return new PostResponseDto(post, urls);
     }
 }
