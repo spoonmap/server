@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import xyz.spoonmap.server.authentication.JwtGenerator;
-import xyz.spoonmap.server.authentication.filter.JwtAuthenticateFilter;
+import xyz.spoonmap.server.authentication.filter.AuthenticateFilter;
 import xyz.spoonmap.server.authentication.filter.JwtVerifyFilter;
 
 @Configuration
@@ -47,6 +47,7 @@ public class WebSecurityConfig {
         http
             .authorizeRequests()
             .antMatchers("**/login", "**/signup").permitAll()
+            .antMatchers("**/members/profile/**").hasRole("ROLE_USER")
             .antMatchers("/**").permitAll();
 
         http
@@ -79,9 +80,9 @@ public class WebSecurityConfig {
     /**
      * @see <a href="https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/config/annotation/authentication/configuration/AuthenticationConfiguration.html">AuthenticationConfiguration</a>
      */
-    private JwtAuthenticateFilter jwtAuthenticateFilter() throws Exception {
-        JwtAuthenticateFilter filter =
-            new JwtAuthenticateFilter(configuration.getAuthenticationManager(), jwtGenerator);
+    private AuthenticateFilter jwtAuthenticateFilter() throws Exception {
+        AuthenticateFilter filter =
+            new AuthenticateFilter(configuration.getAuthenticationManager(), jwtGenerator);
         filter.setFilterProcessesUrl("/v1/members/login");
 
         return filter;

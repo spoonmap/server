@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,6 +37,7 @@ public class Restaurant {
     @NotNull
     private Float y;
 
+    @Builder
     public Restaurant(String name, String address, Float x, Float y) {
         this.name = name;
         this.address = address;
