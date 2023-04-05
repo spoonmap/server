@@ -74,8 +74,8 @@ class PostServiceV1Test {
         Long postId = 1L;
         ReflectionTestUtils.setField(posts.get(0), "id", postId);
 
-        doReturn(posts).when(postRepository).findAll();
-        doReturn(new ArrayList<>()).when(photoRepository).findByPostId(postId);
+        doReturn(posts).when(postRepository).findByDeletedAtIsNull();
+        doReturn(new ArrayList<>()).when(photoRepository).findByPostIdAndDeletedAtIsNull(postId);
 
         List<PostResponseDto> postResponseList = postServiceV1.getAllPosts();
 
@@ -90,8 +90,8 @@ class PostServiceV1Test {
         Long id = 42L;
         ReflectionTestUtils.setField(post, "id", id);
 
-        doReturn(Optional.of(post)).when(postRepository).findById(id);
-        doReturn(new ArrayList<>()).when(photoRepository).findByPostId(id);
+        doReturn(Optional.of(post)).when(postRepository).findPostByIdAndDeletedAtIsNull(id);
+        doReturn(new ArrayList<>()).when(photoRepository).findByPostIdAndDeletedAtIsNull(id);
 
         PostResponseDto postResponseDto = postServiceV1.getPost(id);
 
@@ -103,7 +103,7 @@ class PostServiceV1Test {
     void getPostFail() {
         Long id = 42L;
 
-        doThrow(PostNotFoundException.class).when(postRepository).findById(id);
+        doThrow(PostNotFoundException.class).when(postRepository).findPostByIdAndDeletedAtIsNull(id);
 
         assertThatThrownBy(() -> {
             postServiceV1.getPost(id);

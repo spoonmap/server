@@ -52,7 +52,7 @@ public class JwtGenerator {
 
     private String createToken(final String email, final long expiration) {
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles", "ROLE_USER");
+        claims.put("roles", "USER");
         Date issuedAt = new Date();
 
         return Jwts.builder()
