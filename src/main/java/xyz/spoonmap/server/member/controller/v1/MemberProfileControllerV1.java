@@ -38,4 +38,10 @@ public class MemberProfileControllerV1 {
         return ResponseEntity.status(OK)
                              .body(Response.of(OK.value(), response));
     }
+
+    @GetMapping("/test")
+    public String test() {
+        throw new RuntimeException("test");
+    }
+
 }
