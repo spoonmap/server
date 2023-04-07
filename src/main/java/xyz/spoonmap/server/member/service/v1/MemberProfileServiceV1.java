@@ -41,12 +41,14 @@ public class MemberProfileServiceV1 implements MemberProfileService {
     @Transactional
     @Override
     public MemberResponse updateNickname(final UserDetails userDetails, final String newNickname) {
-        Member member = ((CustomUserDetail) userDetails).getMember();
-        member.updateNickname(newNickname);
 
-        memberProfileRepository.save(member);
+        throw new MemberNotFoundException();
+        // Member member = ((CustomUserDetail) userDetails).getMember();
+        // member.updateNickname(newNickname);
+        //
+        // memberProfileRepository.save(member);
 
-        return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
+        // return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
     }
 
 }

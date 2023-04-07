@@ -22,6 +22,7 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleServerException(Exception e) {
+        log.error(e.getMessage());
         return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                              .body(new ErrorResponse(INTERNAL_SERVER_ERROR.value(), "오류가 발생했습니다."));
     }

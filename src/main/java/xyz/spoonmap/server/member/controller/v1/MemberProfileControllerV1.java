@@ -41,7 +41,8 @@ public class MemberProfileControllerV1 {
 
     @GetMapping("/test")
     public String test() {
-        throw new RuntimeException("test");
+        memberProfileService.updateNickname(null, null);
+        return "OK";
     }
 
 }
