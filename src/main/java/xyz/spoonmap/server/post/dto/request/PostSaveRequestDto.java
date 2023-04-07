@@ -1,11 +1,15 @@
 package xyz.spoonmap.server.post.dto.request;
 
+import xyz.spoonmap.server.category.entity.Category;
+import xyz.spoonmap.server.member.entity.Member;
+import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.dto.request.RestaurantRequestDto;
+import xyz.spoonmap.server.restaurant.entity.Restaurant;
 
 import javax.validation.constraints.*;
 
-public record PostRequestDto(
+public record PostSaveRequestDto(
         @NotNull(message = "식당 정보가 비어있습니다.")
         RestaurantRequestDto restaurant,
 
@@ -27,5 +31,15 @@ public record PostRequestDto(
         @PositiveOrZero(message = "별점은 0이상의 값이어야 합니다.")
         Byte starRating
 ) {
-
+    public Post toEntity(Member member, Restaurant restaurant, Category category) {
+        return Post.builder()
+                   .member(member)
+                   .restaurant(restaurant)
+                   .category(category)
+                   .title(title)
+                   .content(content)
+                   .mealTime(mealTime)
+                   .starRating(starRating)
+                   .build();
+    }
 }

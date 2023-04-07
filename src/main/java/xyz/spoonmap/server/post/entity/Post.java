@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.member.entity.Member;
+import xyz.spoonmap.server.post.dto.request.PostUpdateRequestDto;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.entity.Restaurant;
 
@@ -86,13 +87,13 @@ public class Post {
         this.starRating = starRating;
     }
 
-    public void update(Restaurant restaurant, Category category, String title, String content, MealTime mealTime, Byte starRating) {
+    public void update(PostUpdateRequestDto requestDto, Restaurant restaurant, Category category) {
         this.restaurant = restaurant;
         this.category = category;
-        this.title = title;
-        this.content = content;
-        this.mealTime = mealTime;
-        this.starRating = starRating;
+        this.title = requestDto.title();
+        this.content = requestDto.content();
+        this.mealTime = requestDto.mealTime();
+        this.starRating = requestDto.starRating();
     }
 
     public void delete() {

@@ -14,7 +14,8 @@ import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.photo.adapter.S3Adapter;
 import xyz.spoonmap.server.photo.entity.Photo;
 import xyz.spoonmap.server.photo.repository.PhotoRepository;
-import xyz.spoonmap.server.post.dto.request.PostRequestDto;
+import xyz.spoonmap.server.post.dto.request.PostSaveRequestDto;
+import xyz.spoonmap.server.post.dto.request.PostUpdateRequestDto;
 import xyz.spoonmap.server.post.dto.response.PostResponseDto;
 import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.repository.PostRepository;
@@ -67,39 +68,27 @@ public class PostServiceV1 implements PostService {
 
     @Override
     @Transactional
-    public PostResponseDto createPost(Long memberId, PostRequestDto postRequestDto, List<MultipartFile> files) {
+    public PostResponseDto createPost(Long memberId, PostSaveRequestDto requestDto, List<MultipartFile> files) {
         Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
 
-        Restaurant restaurant = Restaurant.builder()
-                                          .name(postRequestDto.restaurant().name())
-                                          .address(postRequestDto.restaurant().address())
-                                          .x(postRequestDto.restaurant().x())
-                                          .y(postRequestDto.restaurant().y()).build();
+        Restaurant restaurant = requestDto.restaurant().toEntity();
         restaurantRepository.save(restaurant);
 
-        Category category = categoryRepository.findById(postRequestDto.categoryId())
+        Category category = categoryRepository.findById(requestDto.categoryId())
                                               .orElseThrow(CategoryNotFoundException::new);
 
-        Post post = Post.builder()
-                        .member(member)
-                        .restaurant(restaurant)
-                        .category(category)
-                        .title(postRequestDto.title())
-                        .content(postRequestDto.content())
-                        .mealTime(postRequestDto.mealTime())
-                        .starRating(postRequestDto.starRating()).build();
+        Post post = requestDto.toEntity(member, restaurant, category);
         this.postRepository.save(post);
 
-        List<String> urls = savePhotosFromFile(post, files).stream()
-                                                           .map(Photo::getUrl)
-                                                           .toList();
-
+        List<String> urls = savePhotos(post, files).stream()
+                                                   .map(Photo::getUrl)
+                                                   .toList();
         return new PostResponseDto(post, urls);
     }
 
     @Override
     @Transactional
-    public PostResponseDto updatePost(Long memberId, Long id, PostRequestDto postRequestDto, List<MultipartFile> files) {
+    public PostResponseDto updatePost(Long memberId, Long id, PostUpdateRequestDto requestDto, List<MultipartFile> files) {
         Post post = postRepository.findPostByIdAndDeletedAtIsNull(id)
                                   .orElseThrow(PostNotFoundException::new);
 
@@ -107,28 +96,24 @@ public class PostServiceV1 implements PostService {
             throw new PostNotFoundException(); // TODO: UnAuthorized (401)로 수정
         }
 
-        Category category = categoryRepository.findById(postRequestDto.categoryId())
+        Category category = categoryRepository.findById(requestDto.categoryId())
                                               .orElseThrow(CategoryNotFoundException::new);
 
-        Restaurant restaurant = Restaurant.builder()
-                                          .name(postRequestDto.restaurant().name())
-                                          .address(postRequestDto.restaurant().address())
-                                          .x(postRequestDto.restaurant().x())
-                                          .y(postRequestDto.restaurant().y()).build();
+        Restaurant restaurant = requestDto.restaurant().toEntity();
         restaurantRepository.save(restaurant);
 
-        post.update(restaurant, category, postRequestDto.title(), postRequestDto.content(), postRequestDto.mealTime(), postRequestDto.starRating());
+        post.update(requestDto, restaurant, category);
 
         List<Photo> photos = photoRepository.findByPostId(post.getId());
         photos.forEach(Photo::delete);
 
-        List<String> urls = savePhotosFromFile(post, files).stream()
-                                                           .map(Photo::getUrl)
-                                                           .toList();
+        List<String> urls = savePhotos(post, files).stream()
+                                                   .map(Photo::getUrl)
+                                                   .toList();
         return new PostResponseDto(post, urls);
     }
 
-    private List<Photo> savePhotosFromFile(Post post, List<MultipartFile> files) {
+    private List<Photo> savePhotos(Post post, List<MultipartFile> files) {
         List<Photo> photos = Optional.ofNullable(files)
                                      .orElseGet(Collections::emptyList)
                                      .stream()

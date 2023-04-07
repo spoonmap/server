@@ -1,6 +1,7 @@
 package xyz.spoonmap.server.photo.adapter;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,5 +28,10 @@ public class S3Adapter {
 
         amazonS3.putObject(bucket, s3FileName, multipartFile.getInputStream(), objectMetadata);
         return amazonS3.getUrl(bucket, s3FileName).toString();
+    }
+
+    public void delete(String key) {
+        String fileName = "photo/" + key;
+        amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }
 }
