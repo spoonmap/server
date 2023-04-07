@@ -1,5 +1,7 @@
 package xyz.spoonmap.server.restaurant.dto.request;
 
+import xyz.spoonmap.server.restaurant.entity.Restaurant;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -19,4 +21,12 @@ public record RestaurantRequestDto(
         Float y
 ) {
 
+    public Restaurant toEntity() {
+        return Restaurant.builder()
+                         .name(name)
+                         .address(address)
+                         .x(x)
+                         .y(y)
+                         .build();
+    }
 }

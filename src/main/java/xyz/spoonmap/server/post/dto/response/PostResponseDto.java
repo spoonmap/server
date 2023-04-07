@@ -1,5 +1,6 @@
 package xyz.spoonmap.server.post.dto.response;
 
+import xyz.spoonmap.server.member.dto.response.MemberResponse;
 import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
 import xyz.spoonmap.server.restaurant.dto.response.RestaurantResponseDto;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public record PostResponseDto(
         Long id,
-        Long authorId,
+        MemberResponse author,
         String title,
         List<String> photoUrls,
         RestaurantResponseDto restaurant,
@@ -23,14 +24,10 @@ public record PostResponseDto(
 
     public PostResponseDto(Post post, List<String> urls) {
         this(post.getId(),
-                post.getMember().getId(),
+                new MemberResponse(post.getMember()),
                 post.getTitle(),
                 urls,
-                new RestaurantResponseDto(
-                        post.getRestaurant().getName(),
-                        post.getRestaurant().getAddress(),
-                        post.getRestaurant().getX(),
-                        post.getRestaurant().getY()),
+                new RestaurantResponseDto(post.getRestaurant()),
                 post.getCategory().getName(),
                 post.getStarRating(),
                 post.getContent(),
