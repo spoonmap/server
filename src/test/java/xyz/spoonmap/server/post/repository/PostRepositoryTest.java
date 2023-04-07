@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Import;
 import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.category.repository.CategoryRepository;
 import xyz.spoonmap.server.config.QueryDslConfig;
-import xyz.spoonmap.server.exception.post.PostNotFoundException;
+import xyz.spoonmap.server.exception.domain.post.PostNotFoundException;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.post.entity.Post;
