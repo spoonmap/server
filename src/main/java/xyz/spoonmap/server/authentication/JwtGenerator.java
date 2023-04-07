@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import xyz.spoonmap.server.exception.member.UnauthorizedException;
+import xyz.spoonmap.server.exception.domain.member.UnauthorizedException;
 
 @Slf4j
 @Component
@@ -79,12 +79,18 @@ public class JwtGenerator {
     }
 
     public String getToken(HttpServletRequest request) {
-        Cookie jwt = Arrays.stream(request.getCookies())
+        Cookie[] cookies = request.getCookies();
+
+        if (Objects.isNull(cookies)) {
+            return null;
+        }
+
+        Cookie jwt = Arrays.stream(cookies)
                            .filter(cookie -> Objects.equals(cookie.getName(), JWT_COOKIE))
                            .findFirst()
                            .orElseThrow(UnauthorizedException::new);
 
-        return Objects.requireNonNull(jwt.getValue());
+        return jwt.getValue();
     }
 
     public boolean isValid(final String token) {

@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
-import xyz.spoonmap.server.exception.member.MemberNotFoundException;
+import xyz.spoonmap.server.exception.domain.member.MemberNotFoundException;
 import xyz.spoonmap.server.member.dto.response.EmailResponse;
 import xyz.spoonmap.server.member.dto.response.MemberResponse;
 import xyz.spoonmap.server.member.entity.Member;

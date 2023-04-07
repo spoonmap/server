@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-import xyz.spoonmap.server.exception.member.MemberWithdrawException;
+import xyz.spoonmap.server.exception.domain.member.MemberWithdrawException;
 import xyz.spoonmap.server.member.dto.request.SignupRequest;
 import xyz.spoonmap.server.member.dto.response.EmailResponse;
 import xyz.spoonmap.server.member.dto.response.PasswordUpdateResponse;

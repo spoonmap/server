@@ -18,7 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import xyz.spoonmap.server.authentication.JwtGenerator;
 import xyz.spoonmap.server.authentication.dto.LoginRequest;
-import xyz.spoonmap.server.exception.member.UnauthorizedException;
+import xyz.spoonmap.server.exception.domain.member.UnauthorizedException;
 
 @Slf4j
 public class AuthenticateFilter extends UsernamePasswordAuthenticationFilter {

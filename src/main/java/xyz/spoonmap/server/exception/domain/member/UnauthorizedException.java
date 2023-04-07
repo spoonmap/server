@@ -1,4 +1,4 @@
-package xyz.spoonmap.server.exception.member;
+package xyz.spoonmap.server.exception.domain.member;
 
 import org.springframework.security.core.AuthenticationException;
 
