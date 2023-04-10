@@ -4,6 +4,7 @@ import xyz.spoonmap.server.comment.entity.Comment;
 import xyz.spoonmap.server.member.dto.response.MemberResponse;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public record CommentResponseDto(
         Long id,
@@ -16,7 +17,9 @@ public record CommentResponseDto(
     public CommentResponseDto(Comment comment) {
         this(comment.getId(),
                 new MemberResponse(comment.getMember()),
-                comment.getParentComment() == null ? null : comment.getParentComment().getId(),
+                Optional.ofNullable(comment.getParentComment())
+                        .map(Comment::getId)
+                        .orElse(null),
                 comment.getContent(),
                 comment.getCreatedAt(),
                 comment.getModifiedAt());

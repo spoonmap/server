@@ -75,6 +75,7 @@ class CommentServiceV1Test {
 
         assertThat(actual.memberResponse().id()).isEqualTo(memberId);
         assertThat(actual.content()).isEqualTo(expected);
+        assertThat(actual.parentCommentId()).isNull();
     }
 
     @Test

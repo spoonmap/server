@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.spoonmap.server.comment.dto.request.CommentSaveRequestDto;
 import xyz.spoonmap.server.comment.dto.request.CommentUpdateRequestDto;
@@ -16,6 +17,7 @@ import xyz.spoonmap.server.comment.dto.response.CommentResponseDto;
 import xyz.spoonmap.server.comment.service.v1.CommentServiceV1;
 import xyz.spoonmap.server.dto.response.Response;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class CommentControllerV1 {
     @PostMapping("v1/posts/{postId}/comments")
     public ResponseEntity<Response<CommentResponseDto>> create(UserDetails userDetails,
                                                                @PathVariable Long postId,
-                                                               CommentSaveRequestDto requestDto) {
+                                                               @RequestBody @Valid CommentSaveRequestDto requestDto) {
         CommentResponseDto response = commentService.create(userDetails, postId, requestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(Response.of(HttpStatus.CREATED.value(), response));
@@ -44,7 +46,7 @@ public class CommentControllerV1 {
     @PutMapping("v1/comments/{commentId}")
     public ResponseEntity<Response<CommentResponseDto>> update(UserDetails userDetails,
                                                                @PathVariable Long commentId,
-                                                               CommentUpdateRequestDto requestDto) {
+                                                               @RequestBody @Valid CommentUpdateRequestDto requestDto) {
         CommentResponseDto response = commentService.update(userDetails, commentId, requestDto);
         return ResponseEntity.status(HttpStatus.OK)
                              .body(Response.of(HttpStatus.OK.value(), response));

@@ -20,6 +20,7 @@ import xyz.spoonmap.server.post.repository.PostRepository;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -30,10 +31,10 @@ public class CommentServiceV1 implements CommentService {
 
     @Override
     public List<CommentResponseDto> findAllBy(Long postId) {
-        List<Comment> comments = commentRepository.findCommentsByPostIdAndDeletedAtIsNull(postId);
-        return comments.stream()
-                       .map(CommentResponseDto::new)
-                       .toList();
+        return commentRepository.findCommentsByPostIdAndDeletedAtIsNull(postId)
+                                .stream()
+                                .map(CommentResponseDto::new)
+                                .toList();
     }
 
     @Transactional
@@ -42,11 +43,9 @@ public class CommentServiceV1 implements CommentService {
         Member member = ((CustomUserDetail) userDetails).getMember();
         Post post = postRepository.findPostByIdAndDeletedAtIsNull(postId).orElseThrow(PostNotFoundException::new);
 
-        Comment parentComment = null;
-        if (Objects.nonNull(requestDto.parentCommentId())) {
-            parentComment = commentRepository.findById(requestDto.parentCommentId())
-                                             .orElseThrow(CommentNotFoundException::new);
-        }
+        Comment parentComment = Optional.ofNullable(requestDto.parentCommentId())
+                                        .map(id -> commentRepository.findById(id).orElseThrow(CommentNotFoundException::new))
+                                        .orElse(null);
 
         Comment comment = Comment.builder()
                                  .post(post)
