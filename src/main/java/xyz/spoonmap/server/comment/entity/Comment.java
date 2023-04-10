@@ -1,6 +1,15 @@
 package xyz.spoonmap.server.comment.entity;
 
-import java.time.LocalDateTime;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import xyz.spoonmap.server.comment.dto.request.CommentUpdateRequestDto;
+import xyz.spoonmap.server.member.entity.Member;
+import xyz.spoonmap.server.post.entity.Post;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -14,13 +23,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import xyz.spoonmap.server.member.entity.Member;
-import xyz.spoonmap.server.post.entity.Post;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
@@ -34,12 +37,12 @@ public class Comment {
     @Column(name = "comment_no")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_no")
     @NotNull
     private Post post;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_no")
     @NotNull
     private Member member;
@@ -64,11 +67,19 @@ public class Comment {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Builder
     public Comment(Post post, Member member, Comment parentComment, String content) {
         this.post = post;
         this.member = member;
         this.parentComment = parentComment;
         this.content = content;
-        this.createdAt = LocalDateTime.now();
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void update(CommentUpdateRequestDto requestDto) {
+        this.content = requestDto.content();
     }
 }
