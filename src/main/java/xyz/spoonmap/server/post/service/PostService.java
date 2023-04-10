@@ -1,5 +1,6 @@
 package xyz.spoonmap.server.post.service;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 import xyz.spoonmap.server.post.dto.request.PostSaveRequestDto;
 import xyz.spoonmap.server.post.dto.request.PostUpdateRequestDto;
@@ -13,9 +14,9 @@ public interface PostService {
 
     PostResponseDto getPost(Long id);
 
-    PostResponseDto createPost(Long memberId, PostSaveRequestDto requestDto, List<MultipartFile> files);
+    PostResponseDto createPost(UserDetails userDetails, PostSaveRequestDto requestDto, List<MultipartFile> files);
 
-    PostResponseDto updatePost(Long memberId, Long id, PostUpdateRequestDto requestDto, List<MultipartFile> files);
+    PostResponseDto updatePost(UserDetails userDetails, Long id, PostUpdateRequestDto requestDto, List<MultipartFile> files);
 
-    PostResponseDto deletePost(Long memberId, Long id);
+    PostResponseDto deletePost(UserDetails userDetails, Long id);
 }

@@ -1,12 +1,13 @@
 package xyz.spoonmap.server.post.service.v1;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.category.repository.CategoryRepository;
 import xyz.spoonmap.server.exception.domain.category.CategoryNotFoundException;
-import xyz.spoonmap.server.exception.domain.member.MemberNotFoundException;
 import xyz.spoonmap.server.exception.domain.photo.PhotoUploadException;
 import xyz.spoonmap.server.exception.domain.post.PostNotFoundException;
 import xyz.spoonmap.server.member.entity.Member;
@@ -68,8 +69,8 @@ public class PostServiceV1 implements PostService {
 
     @Override
     @Transactional
-    public PostResponseDto createPost(Long memberId, PostSaveRequestDto requestDto, List<MultipartFile> files) {
-        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+    public PostResponseDto createPost(UserDetails userDetails, PostSaveRequestDto requestDto, List<MultipartFile> files) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
 
         Restaurant restaurant = requestDto.restaurant().toEntity();
         restaurantRepository.save(restaurant);
@@ -88,11 +89,13 @@ public class PostServiceV1 implements PostService {
 
     @Override
     @Transactional
-    public PostResponseDto updatePost(Long memberId, Long id, PostUpdateRequestDto requestDto, List<MultipartFile> files) {
+    public PostResponseDto updatePost(UserDetails userDetails, Long id, PostUpdateRequestDto requestDto, List<MultipartFile> files) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
+
         Post post = postRepository.findPostByIdAndDeletedAtIsNull(id)
                                   .orElseThrow(PostNotFoundException::new);
 
-        if (!Objects.equals(post.getMember().getId(), memberId)) {
+        if (!Objects.equals(post.getMember().getId(), member.getId())) {
             throw new PostNotFoundException(); // TODO: UnAuthorized (401)로 수정
         }
 
@@ -135,11 +138,12 @@ public class PostServiceV1 implements PostService {
 
     @Override
     @Transactional
-    public PostResponseDto deletePost(Long memberId, Long id) {
+    public PostResponseDto deletePost(UserDetails userDetails, Long id) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
         Post post = postRepository.findPostByIdAndDeletedAtIsNull(id)
                                   .orElseThrow(PostNotFoundException::new);
 
-        if (!Objects.equals(post.getMember().getId(), memberId)) {
+        if (!Objects.equals(post.getMember().getId(), member.getId())) {
             throw new PostNotFoundException(); // TODO: UnAuthorized
         }
         post.delete();
