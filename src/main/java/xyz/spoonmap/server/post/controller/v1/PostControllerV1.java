@@ -3,6 +3,7 @@ package xyz.spoonmap.server.post.controller.v1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,31 +46,31 @@ public class PostControllerV1 {
 
     @PostMapping()
     ResponseEntity<Response<PostResponseDto>> createPost(
-            Long memberId,
+            UserDetails userDetails,
             @RequestPart(value = "dto") @Valid PostSaveRequestDto postSaveRequestDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        PostResponseDto responseDto = this.postService.createPost(memberId, postSaveRequestDto, files);
+        PostResponseDto responseDto = this.postService.createPost(userDetails, postSaveRequestDto, files);
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(Response.of(HttpStatus.CREATED.value(), responseDto));
     }
 
     @PutMapping("/{postId}")
     ResponseEntity<Response<PostResponseDto>> updatePost(
-            Long memberId,
+            UserDetails userDetails,
             @PathVariable("postId") Long id,
             @RequestPart(value = "dto") @Valid PostUpdateRequestDto requestDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-        PostResponseDto responseDto = this.postService.updatePost(memberId, id, requestDto, files);
+        PostResponseDto responseDto = this.postService.updatePost(userDetails, id, requestDto, files);
         return ResponseEntity.status(HttpStatus.OK)
                              .body(Response.of(HttpStatus.OK.value(), responseDto));
     }
 
     @DeleteMapping("/{postId}")
     ResponseEntity<Response<PostResponseDto>> deletePost(
-            Long memberId,
+            UserDetails userDetails,
             @PathVariable("postId") Long id) {
-        PostResponseDto responseDto = this.postService.deletePost(memberId, id);
+        PostResponseDto responseDto = this.postService.deletePost(userDetails, id);
         return ResponseEntity.status(HttpStatus.OK)
                              .body(Response.of(HttpStatus.OK.value(), responseDto));
     }
