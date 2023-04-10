@@ -58,10 +58,6 @@ public class RelationServiceV1 implements RelationService {
         return new FollowAddResponse(sender.getId(), receiverId);
     }
 
-    private MemberResponse toDto(Member member) {
-        return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
-    }
-
     @Transactional
     @Override
     public FollowAddResponse acceptFollow(Long senderId, UserDetails userDetails) {
@@ -73,6 +69,48 @@ public class RelationServiceV1 implements RelationService {
         relation.accept();
 
         return new FollowAddResponse(senderId, member.getId());
+    }
+
+    @Override
+    public FollowResponse retrieveFollowRequest(UserDetails userDetails) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
+
+        List<MemberResponse> memberResponses = relationRepository.findMyFollowRequest(member.getId())
+                                                                 .stream()
+                                                                 .map(this::toDto)
+                                                                 .toList();
+
+        return new FollowResponse(member.getId(), memberResponses);
+    }
+
+    @Override
+    public FollowerResponse retrieveFollowerRequest(UserDetails userDetails) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
+
+        List<MemberResponse> memberResponses = relationRepository.findMyFollowerRequest(member.getId())
+                                                                 .stream()
+                                                                 .map(this::toDto)
+                                                                 .toList();
+
+        return new FollowerResponse(member.getId(), memberResponses);
+    }
+
+    @Transactional
+    @Override
+    public FollowAddResponse rejectFollow(UserDetails userDetails, Long senderId) {
+        // TODO: 거절되면 알림?
+        Member member = ((CustomUserDetail) userDetails).getMember();
+
+        Relation relation = relationRepository.findById(new Relation.Pk(senderId, member.getId()))
+                                              .orElseThrow(RelationNotFoundException::new);
+
+        relation.reject();
+
+        return new FollowAddResponse(senderId, member.getId());
+    }
+
+    private MemberResponse toDto(Member member) {
+        return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
     }
 
 }

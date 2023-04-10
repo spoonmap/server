@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.entity.QMember;
 import xyz.spoonmap.server.relation.entity.QRelation;
+import xyz.spoonmap.server.relation.enums.RelationStatus;
 
 @RequiredArgsConstructor
 public class RelationRepositoryImpl implements RelationRepositoryCustom {
@@ -42,6 +43,38 @@ public class RelationRepositoryImpl implements RelationRepositoryCustom {
                               .from(relation)
                               .where(relation.receiver.id.eq(id)))
             )
+            .fetch();
+    }
+
+    /**
+     * 팔로우 신청 조회 (나 -> 다른 유저)
+     */
+    @Override
+    public List<Member> findMyFollowRequest(Long id) {
+        QMember member = QMember.member;
+        QRelation relation = QRelation.relation;
+
+        return jpaQueryFactory
+            .select(member)
+            .from(relation)
+            .where(relation.sender.id.eq(id)
+                                     .and(relation.relationStatus.eq(RelationStatus.REQUESTED)))
+            .fetch();
+    }
+
+    /**
+     * 팔로우 신청 조회 (다른유저 -> 나)
+     */
+    @Override
+    public List<Member> findMyFollowerRequest(Long id) {
+        QMember member = QMember.member;
+        QRelation relation = QRelation.relation;
+
+        return jpaQueryFactory
+            .select(member)
+            .from(relation)
+            .where(relation.receiver.id.eq(id)
+                                       .and(relation.relationStatus.eq(RelationStatus.REQUESTED)))
             .fetch();
     }
 
