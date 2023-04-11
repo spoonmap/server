@@ -1,9 +1,5 @@
 package xyz.spoonmap.server.config;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
-
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.LegacyCookieProcessor;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -22,6 +18,10 @@ import xyz.spoonmap.server.authentication.JwtGenerator;
 import xyz.spoonmap.server.authentication.filter.AuthenticateFilter;
 import xyz.spoonmap.server.authentication.filter.JwtVerifyFilter;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -33,25 +33,22 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .httpBasic().disable()
-            .formLogin().disable()
-            .csrf().disable()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .httpBasic().disable()
+                .formLogin().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // TODO: CORS 설정 해야함
 
-        http
-            .addFilterBefore(jwtAuthenticateFilter(), UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(jwtAuthenticateFilter(), UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtVerifyFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http
-            .authorizeRequests()
-            .antMatchers("**/login", "**/signup").permitAll()
+        http.authorizeRequests()
+            .antMatchers("**/login", "**/signup", "**/posts").permitAll()
             .antMatchers("**/members/profile/**").hasRole("USER")
             .antMatchers("/**").permitAll();
 
-        http
-            .exceptionHandling()
+        http.exceptionHandling()
             .accessDeniedHandler(((request, response, accessDeniedException) -> {
                 response.setStatus(FORBIDDEN.value());
                 response.setCharacterEncoding(UTF_8.name());
@@ -74,7 +71,7 @@ public class WebSecurityConfig {
     @Bean
     public WebServerFactoryCustomizer<TomcatServletWebServerFactory> cookieProcessorCustomizer() {
         return factory -> factory.addContextCustomizers(
-            context -> context.setCookieProcessor(new LegacyCookieProcessor()));
+                context -> context.setCookieProcessor(new LegacyCookieProcessor()));
     }
 
     /**
@@ -82,7 +79,7 @@ public class WebSecurityConfig {
      */
     private AuthenticateFilter jwtAuthenticateFilter() throws Exception {
         AuthenticateFilter filter =
-            new AuthenticateFilter(configuration.getAuthenticationManager(), jwtGenerator);
+                new AuthenticateFilter(configuration.getAuthenticationManager(), jwtGenerator);
         filter.setFilterProcessesUrl("/v1/members/login");
 
         return filter;
