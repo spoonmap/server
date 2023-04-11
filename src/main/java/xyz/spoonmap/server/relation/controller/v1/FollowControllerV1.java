@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,9 +27,9 @@ public class FollowControllerV1 {
     private final RelationService relationService;
 
     @PostMapping
-    public ResponseEntity<Response<FollowAddResponse>> addFollow(@RequestBody
-                                                                 FollowRequest followRequest,
-                                                                 UserDetails userDetails) {
+    public ResponseEntity<Response<FollowAddResponse>> addFollow(UserDetails userDetails,@RequestBody
+                                                                 FollowRequest followRequest
+                                                                 ) {
         FollowAddResponse followAddResponse =
             relationService.requestFollow(userDetails, followRequest.targetMemberId());
 
@@ -48,6 +49,24 @@ public class FollowControllerV1 {
                                                                     FollowRequest followRequest,
                                                                     UserDetails userDetails) {
         FollowAddResponse followAddResponse = relationService.acceptFollow(followRequest.targetMemberId(), userDetails);
+
+        return ResponseEntity.status(OK)
+                             .body(Response.of(OK.value(), followAddResponse));
+    }
+
+    @GetMapping("/request")
+    public ResponseEntity<Response<FollowResponse>> retrieveFollowRequest(UserDetails userDetails) {
+
+        FollowResponse followResponse = relationService.retrieveFollowRequest(userDetails);
+
+        return ResponseEntity.status(OK)
+                             .body(Response.of(OK.value(), followResponse));
+    }
+
+    @PatchMapping("/rejection/{senderId}")
+    public ResponseEntity<Response<FollowAddResponse>> rejectFollow(@PathVariable Long senderId,
+                                                                    UserDetails userDetails) {
+        FollowAddResponse followAddResponse = relationService.rejectFollow(senderId, userDetails);
 
         return ResponseEntity.status(OK)
                              .body(Response.of(OK.value(), followAddResponse));

@@ -56,14 +56,18 @@ public class RelationRepositoryImpl implements RelationRepositoryCustom {
 
         return jpaQueryFactory
             .select(member)
-            .from(relation)
-            .where(relation.sender.id.eq(id)
-                                     .and(relation.relationStatus.eq(RelationStatus.REQUESTED)))
+            .from(member)
+            .where(member.id.in(
+                JPAExpressions.select(relation.receiver.id)
+                              .from(relation)
+                              .where(relation.sender.id.eq(id)
+                                                       .and(relation.relationStatus.eq(RelationStatus.REQUESTED))))
+            )
             .fetch();
     }
 
     /**
-     * 팔로우 신청 조회 (다른유저 -> 나)
+     * 팔로워 신청 조회 (나에게 팔로우 신청 한 사람 조회)
      */
     @Override
     public List<Member> findMyFollowerRequest(Long id) {
@@ -72,9 +76,13 @@ public class RelationRepositoryImpl implements RelationRepositoryCustom {
 
         return jpaQueryFactory
             .select(member)
-            .from(relation)
-            .where(relation.receiver.id.eq(id)
-                                       .and(relation.relationStatus.eq(RelationStatus.REQUESTED)))
+            .from(member)
+            .where(member.id.in(
+                JPAExpressions.select(relation.sender.id)
+                              .from(relation)
+                              .where(relation.receiver.id.eq(id)
+                                                       .and(relation.relationStatus.eq(RelationStatus.REQUESTED))))
+            )
             .fetch();
     }
 

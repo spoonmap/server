@@ -97,7 +97,7 @@ public class RelationServiceV1 implements RelationService {
 
     @Transactional
     @Override
-    public FollowAddResponse rejectFollow(UserDetails userDetails, Long senderId) {
+    public FollowAddResponse rejectFollow(Long senderId, UserDetails userDetails) {
         // TODO: 거절되면 알림?
         Member member = ((CustomUserDetail) userDetails).getMember();
 

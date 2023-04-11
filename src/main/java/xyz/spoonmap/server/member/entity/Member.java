@@ -1,6 +1,7 @@
 package xyz.spoonmap.server.member.entity;
 
-import static xyz.spoonmap.server.member.enums.VerifyStatus.*;
+import static xyz.spoonmap.server.member.enums.VerifyStatus.SIGNUP;
+import static xyz.spoonmap.server.member.enums.VerifyStatus.VERIFIED;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
@@ -18,6 +19,7 @@ import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,6 +29,7 @@ import xyz.spoonmap.server.member.enums.VerifyStatus;
 @Entity
 @NoArgsConstructor
 @Getter
+@ToString
 @EntityListeners(AuditingEntityListener.class)
 public class Member {
 
@@ -45,7 +48,7 @@ public class Member {
     @NotNull
     private String email;
 
-    @Size(min = 50, max = 60)
+    @Size(min = 50, max = 65)
     @NotNull
     private String password;
 

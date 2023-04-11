@@ -26,4 +26,11 @@ public class FollowerControllerV1 {
                              .body(Response.of(OK.value(), followerResponse));
     }
 
+    @GetMapping("/request")
+    public ResponseEntity<Response<FollowerResponse>> retrieveFollowerRequest(UserDetails userDetails) {
+        FollowerResponse followerResponse = relationService.retrieveFollowerRequest(userDetails);
+        return ResponseEntity.status(OK)
+                             .body(Response.of(OK.value(), followerResponse));
+    }
+
 }

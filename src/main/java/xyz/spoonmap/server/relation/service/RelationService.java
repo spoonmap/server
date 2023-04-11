@@ -19,6 +19,6 @@ public interface RelationService {
 
     FollowerResponse retrieveFollowerRequest(UserDetails userDetails);
 
-    FollowAddResponse rejectFollow(UserDetails userDetails, Long senderId);
+    FollowAddResponse rejectFollow(Long senderId, UserDetails userDetails);
 
 }
