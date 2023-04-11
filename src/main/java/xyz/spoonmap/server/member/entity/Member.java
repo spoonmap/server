@@ -48,7 +48,7 @@ public class Member {
     @NotNull
     private String email;
 
-    @Size(min = 50, max = 65)
+    @Size(min = 60, max = 70)
     @NotNull
     private String password;
 

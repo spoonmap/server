@@ -9,12 +9,9 @@ public class LogTraceThreadLocal {
 
     private static final ThreadLocal<TraceId> threadLocal = new ThreadLocal<>();
 
-    private static boolean used = false;
-
     public static void set() {
         String[] uuid = UUID.randomUUID().toString().split("-");
         threadLocal.set(new TraceId(uuid[0]));
-        used = true;
     }
 
     public static void remove() {
@@ -22,10 +19,7 @@ public class LogTraceThreadLocal {
     }
 
     public static String getId() {
-        if (!used) {
-            set();
-        }
-        return threadLocal.get().id;
+        return threadLocal.get().id();
     }
 
 }

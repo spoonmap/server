@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,6 +56,7 @@ public class Relation {
     @AllArgsConstructor
     @Getter
     @EqualsAndHashCode
+    @Builder
     public static class Pk implements Serializable {
 
         @NotNull

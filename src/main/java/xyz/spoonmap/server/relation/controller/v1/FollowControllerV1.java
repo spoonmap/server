@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,9 +28,9 @@ public class FollowControllerV1 {
     private final RelationService relationService;
 
     @PostMapping
-    public ResponseEntity<Response<FollowAddResponse>> addFollow(UserDetails userDetails,@RequestBody
-                                                                 FollowRequest followRequest
-                                                                 ) {
+    public ResponseEntity<Response<FollowAddResponse>> addFollow(@AuthenticationPrincipal UserDetails userDetails,
+                                                                 @RequestBody FollowRequest followRequest
+    ) {
         FollowAddResponse followAddResponse =
             relationService.requestFollow(userDetails, followRequest.targetMemberId());
 
@@ -38,16 +39,15 @@ public class FollowControllerV1 {
     }
 
     @GetMapping
-    public ResponseEntity<Response<FollowResponse>> retrieveFollow(UserDetails userDetails) {
+    public ResponseEntity<Response<FollowResponse>> retrieveFollow(@AuthenticationPrincipal UserDetails userDetails) {
         FollowResponse followResponse = relationService.retrieveFollows(userDetails);
         return ResponseEntity.status(OK)
                              .body(Response.of(OK.value(), followResponse));
     }
 
     @PatchMapping
-    public ResponseEntity<Response<FollowAddResponse>> acceptFollow(@RequestBody
-                                                                    FollowRequest followRequest,
-                                                                    UserDetails userDetails) {
+    public ResponseEntity<Response<FollowAddResponse>> acceptFollow(@RequestBody FollowRequest followRequest,
+                                                                    @AuthenticationPrincipal UserDetails userDetails) {
         FollowAddResponse followAddResponse = relationService.acceptFollow(followRequest.targetMemberId(), userDetails);
 
         return ResponseEntity.status(OK)
@@ -55,7 +55,8 @@ public class FollowControllerV1 {
     }
 
     @GetMapping("/request")
-    public ResponseEntity<Response<FollowResponse>> retrieveFollowRequest(UserDetails userDetails) {
+    public ResponseEntity<Response<FollowResponse>> retrieveFollowRequest(
+        @AuthenticationPrincipal UserDetails userDetails) {
 
         FollowResponse followResponse = relationService.retrieveFollowRequest(userDetails);
 
@@ -65,7 +66,7 @@ public class FollowControllerV1 {
 
     @PatchMapping("/rejection/{senderId}")
     public ResponseEntity<Response<FollowAddResponse>> rejectFollow(@PathVariable Long senderId,
-                                                                    UserDetails userDetails) {
+                                                                    @AuthenticationPrincipal UserDetails userDetails) {
         FollowAddResponse followAddResponse = relationService.rejectFollow(senderId, userDetails);
 
         return ResponseEntity.status(OK)

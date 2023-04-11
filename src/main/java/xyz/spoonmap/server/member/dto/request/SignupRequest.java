@@ -9,7 +9,7 @@ public record SignupRequest(
     String email,
 
     @NotBlank
-    @Size(min = 50, max = 60)
+    @Size(min = 8, max = 20)
     String password,
 
     @NotBlank

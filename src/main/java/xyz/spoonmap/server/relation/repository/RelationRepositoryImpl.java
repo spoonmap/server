@@ -23,9 +23,10 @@ public class RelationRepositoryImpl implements RelationRepositoryCustom {
             .select(member)
             .from(member)
             .where(member.id.in(
-                JPAExpressions.select(relation.receiver.id)
+                JPAExpressions.select(relation.sender.id)
                               .from(relation)
-                              .where(relation.sender.id.eq(id)))
+                              .where(relation.receiver.id.eq(id)
+                                                       .and(relation.relationStatus.eq(RelationStatus.ACCEPTED))))
             )
             .fetch();
     }
@@ -39,9 +40,10 @@ public class RelationRepositoryImpl implements RelationRepositoryCustom {
             .select(member)
             .from(member)
             .where(member.id.in(
-                JPAExpressions.select(relation.sender.id)
+                JPAExpressions.select(relation.receiver.id)
                               .from(relation)
-                              .where(relation.receiver.id.eq(id)))
+                              .where(relation.sender.id.eq(id)
+                                                         .and(relation.relationStatus.eq(RelationStatus.ACCEPTED))))
             )
             .fetch();
     }
@@ -81,7 +83,7 @@ public class RelationRepositoryImpl implements RelationRepositoryCustom {
                 JPAExpressions.select(relation.sender.id)
                               .from(relation)
                               .where(relation.receiver.id.eq(id)
-                                                       .and(relation.relationStatus.eq(RelationStatus.REQUESTED))))
+                                                         .and(relation.relationStatus.eq(RelationStatus.REQUESTED))))
             )
             .fetch();
     }

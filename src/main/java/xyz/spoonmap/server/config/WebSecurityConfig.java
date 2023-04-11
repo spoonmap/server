@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,8 +47,8 @@ public class WebSecurityConfig {
 
         http
             .authorizeRequests()
-            .antMatchers("**/login", "**/signup").permitAll()
-            .antMatchers("**/members/profile/**").hasRole("USER")
+            .antMatchers("**/login", "**/signup", "/members/verify").permitAll()
+            .antMatchers("**/members/profile/**", "**/follow/**", "**/followers/**").hasRole("USER")
             .antMatchers("/**").permitAll();
 
         http
@@ -75,6 +76,13 @@ public class WebSecurityConfig {
     public WebServerFactoryCustomizer<TomcatServletWebServerFactory> cookieProcessorCustomizer() {
         return factory -> factory.addContextCustomizers(
             context -> context.setCookieProcessor(new LegacyCookieProcessor()));
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                         .antMatchers("/swagger*", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs")
+                         .antMatchers("/h2-console/**");
     }
 
     /**

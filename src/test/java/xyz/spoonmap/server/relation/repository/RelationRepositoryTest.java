@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import xyz.spoonmap.server.config.QueryDslConfig;
+import xyz.spoonmap.server.config.jpa.QueryDslConfig;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.relation.entity.Relation;
