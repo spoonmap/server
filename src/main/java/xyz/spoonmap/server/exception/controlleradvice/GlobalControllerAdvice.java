@@ -20,9 +20,14 @@ public class GlobalControllerAdvice {
                              .body(new ErrorResponse(NOT_FOUND.value(), e.getMessage()));
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleServerException(Exception e) {
-        log.error("{}", e.getStackTrace()[0]);
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+                             .body(new ErrorResponse(INTERNAL_SERVER_ERROR.value(), "오류가 발생했습니다."));
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<ErrorResponse> handleOther(Throwable t) {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR)
                              .body(new ErrorResponse(INTERNAL_SERVER_ERROR.value(), "오류가 발생했습니다."));
     }

@@ -37,11 +37,6 @@ public class MemberServiceV1 implements MemberService {
                               .name(signupRequest.name())
                               .build();
 
-        log.info("========================");
-        log.info(member.getPassword());
-        log.info("{}",member.getPassword().length());
-        log.info("========================");
-
         Member savedMember = memberRepository.save(member);
 
         return new SignupResponse(savedMember.getId(), savedMember.getEmail());

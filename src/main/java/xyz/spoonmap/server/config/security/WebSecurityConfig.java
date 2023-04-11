@@ -1,4 +1,4 @@
-package xyz.spoonmap.server.config;
+package xyz.spoonmap.server.config.security;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -45,23 +45,21 @@ public class WebSecurityConfig {
             .addFilterBefore(jwtAuthenticateFilter(), UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtVerifyFilter(), UsernamePasswordAuthenticationFilter.class);
 
-        http
+        http.anonymous().disable()
             .authorizeRequests()
-            .antMatchers("**/login", "**/signup", "/members/verify").permitAll()
-            .antMatchers("**/members/profile/**", "**/follow/**", "**/followers/**").hasRole("USER")
-            .antMatchers("/**").permitAll();
+            .antMatchers(Path.V1_USER).hasRole("USER")
+            .antMatchers(Path.PERMIT_ALL).permitAll()
+            .anyRequest().permitAll();
 
         http
             .exceptionHandling()
             .accessDeniedHandler(((request, response, accessDeniedException) -> {
-                response.setStatus(FORBIDDEN.value());
                 response.setCharacterEncoding(UTF_8.name());
-                response.setContentType("text/html; charset=UTF-8");
+                response.sendError(FORBIDDEN.value(), "로그인이 필요합니다.");
             }))
             .authenticationEntryPoint(((request, response, authException) -> {
-                response.setStatus(UNAUTHORIZED.value());
                 response.setCharacterEncoding(UTF_8.name());
-                response.setContentType("text/html; charset=UTF-8");
+                response.sendError(UNAUTHORIZED.value(), "권한이 없습니다.");
             }));
 
         return http.build();
