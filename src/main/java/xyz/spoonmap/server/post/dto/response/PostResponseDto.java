@@ -1,5 +1,6 @@
 package xyz.spoonmap.server.post.dto.response;
 
+import lombok.Builder;
 import xyz.spoonmap.server.member.dto.response.MemberResponse;
 import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.entity.enums.MealTime;
@@ -8,6 +9,7 @@ import xyz.spoonmap.server.restaurant.dto.response.RestaurantResponseDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 public record PostResponseDto(
         Long id,
         MemberResponse author,

@@ -138,7 +138,7 @@ public class PostServiceV1 implements PostService {
 
     @Override
     @Transactional
-    public PostResponseDto deletePost(UserDetails userDetails, Long id) {
+    public Long deletePost(UserDetails userDetails, Long id) {
         Member member = ((CustomUserDetail) userDetails).getMember();
         Post post = postRepository.findPostByIdAndDeletedAtIsNull(id)
                                   .orElseThrow(PostNotFoundException::new);
@@ -151,10 +151,6 @@ public class PostServiceV1 implements PostService {
         List<Photo> photos = photoRepository.findByPostId(id);
         photos.forEach(Photo::delete);
 
-        List<String> urls = photoRepository.findByPostIdAndDeletedAtIsNull(post.getId())
-                                           .stream()
-                                           .map(Photo::getUrl)
-                                           .toList();
-        return new PostResponseDto(post, urls);
+        return id;
     }
 }

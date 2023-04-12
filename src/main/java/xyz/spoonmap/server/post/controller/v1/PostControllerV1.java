@@ -3,6 +3,7 @@ package xyz.spoonmap.server.post.controller.v1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +47,7 @@ public class PostControllerV1 {
 
     @PostMapping()
     ResponseEntity<Response<PostResponseDto>> createPost(
-            UserDetails userDetails,
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestPart(value = "dto") @Valid PostSaveRequestDto postSaveRequestDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
@@ -57,7 +58,7 @@ public class PostControllerV1 {
 
     @PutMapping("/{postId}")
     ResponseEntity<Response<PostResponseDto>> updatePost(
-            UserDetails userDetails,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable("postId") Long id,
             @RequestPart(value = "dto") @Valid PostUpdateRequestDto requestDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files) {
@@ -67,11 +68,11 @@ public class PostControllerV1 {
     }
 
     @DeleteMapping("/{postId}")
-    ResponseEntity<Response<PostResponseDto>> deletePost(
-            UserDetails userDetails,
+    ResponseEntity<Response<Long>> deletePost(
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable("postId") Long id) {
-        PostResponseDto responseDto = this.postService.deletePost(userDetails, id);
+        Long postId = this.postService.deletePost(userDetails, id);
         return ResponseEntity.status(HttpStatus.OK)
-                             .body(Response.of(HttpStatus.OK.value(), responseDto));
+                             .body(Response.of(HttpStatus.OK.value(), postId));
     }
 }
