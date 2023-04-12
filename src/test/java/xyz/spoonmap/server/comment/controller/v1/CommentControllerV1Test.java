@@ -2,6 +2,7 @@ package xyz.spoonmap.server.comment.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -10,8 +11,11 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.comment.dto.request.CommentSaveRequestDto;
+import xyz.spoonmap.server.comment.dto.request.CommentUpdateRequestDto;
 import xyz.spoonmap.server.comment.dto.response.CommentResponseDto;
 import xyz.spoonmap.server.comment.entity.Comment;
 import xyz.spoonmap.server.comment.service.v1.CommentServiceV1;
@@ -20,11 +24,13 @@ import xyz.spoonmap.server.post.entity.Post;
 
 import java.util.List;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,13 +47,24 @@ class CommentControllerV1Test {
     MockMvc mockMvc;
     @Autowired
     ObjectMapper objectMapper;
+    @Autowired
+    WebApplicationContext context;
     @MockBean
     private CommentServiceV1 commentServiceV1;
 
     @BeforeAll()
-    static void setUp() {
+    static void init() {
         ReflectionTestUtils.setField(member, "id", memberId);
         customUserDetail = new CustomUserDetail(member);
+    }
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                                 .apply(springSecurity())
+                                 .defaultResponseCharacterEncoding(UTF_8)
+                                 .alwaysDo(print())
+                                 .build();
     }
 
     @Test
@@ -74,14 +91,13 @@ class CommentControllerV1Test {
         given(commentServiceV1.findAllBy(postId)).willReturn(responses);
 
         mockMvc.perform(get(url).with(user(customUserDetail)))
-               .andDo(print())
                .andExpect(status().isOk())
                .andExpect(content().string(containsString("comment1")))
                .andExpect(content().string(containsString("comment2")));
     }
 
     @Test
-    void create() throws Exception {
+    void 댓글_생성() throws Exception {
         String url = "/v1/posts/" + postId + "/comments";
         String content = "create content";
 
@@ -100,19 +116,56 @@ class CommentControllerV1Test {
         given(commentServiceV1.create(customUserDetail, postId, requestDto)).willReturn(response);
 
         mockMvc.perform(post(url).with(user(customUserDetail))
+                                 .with(csrf())
                                  .contentType(MediaType.APPLICATION_JSON)
                                  .content(requestBody)
-                                 .accept(MediaType.APPLICATION_JSON))
-               .andDo(print())
+                                 .accept(MediaType.APPLICATION_JSON)
+                                 .characterEncoding("utf-8"))
                .andExpect(status().isCreated())
                .andExpect(content().string(containsString(content)));
     }
 
     @Test
-    void update() {
+    void 댓글_수정() throws Exception {
+        Long commentId = 42L;
+        String url = "/v1/comments/" + commentId;
+        String content = "update content";
+
+        CommentUpdateRequestDto requestDto = new CommentUpdateRequestDto(content);
+        String requestBody = objectMapper.writeValueAsString(requestDto);
+
+        Comment comment = Comment.builder()
+                                 .member(member)
+                                 .parentComment(null)
+                                 .content(content)
+                                 .post(new Post())
+                                 .build();
+
+        CommentResponseDto response = new CommentResponseDto(comment);
+
+        given(commentServiceV1.update(customUserDetail, postId, requestDto)).willReturn(response);
+
+        mockMvc.perform(put(url).with(user(customUserDetail))
+                                .with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody)
+                                .accept(MediaType.APPLICATION_JSON)
+                                .characterEncoding("utf-8"))
+               .andExpect(status().isOk())
+               .andExpect(content().string(containsString(content)));
     }
 
     @Test
-    void delete() {
+    void 댓글_삭제() throws Exception {
+        Long commentId = 42L;
+        String url = "/v1/comments/" + commentId;
+
+        given(commentServiceV1.delete(customUserDetail, commentId)).willReturn(commentId);
+
+        mockMvc.perform(delete(url).with(user(customUserDetail))
+                                   .with(csrf())
+                                   .accept(MediaType.APPLICATION_JSON))
+               .andExpect(status().isOk())
+               .andExpect(content().string(containsString(commentId.toString())));
     }
 }

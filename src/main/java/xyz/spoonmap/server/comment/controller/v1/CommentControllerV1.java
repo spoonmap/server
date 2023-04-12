@@ -3,6 +3,7 @@ package xyz.spoonmap.server.comment.controller.v1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +35,7 @@ public class CommentControllerV1 {
     }
 
     @PostMapping("v1/posts/{postId}/comments")
-    public ResponseEntity<Response<CommentResponseDto>> create(UserDetails userDetails,
+    public ResponseEntity<Response<CommentResponseDto>> create(@AuthenticationPrincipal UserDetails userDetails,
                                                                @PathVariable Long postId,
                                                                @RequestBody @Valid CommentSaveRequestDto requestDto) {
         CommentResponseDto response = commentService.create(userDetails, postId, requestDto);
@@ -44,7 +45,7 @@ public class CommentControllerV1 {
     }
 
     @PutMapping("v1/comments/{commentId}")
-    public ResponseEntity<Response<CommentResponseDto>> update(UserDetails userDetails,
+    public ResponseEntity<Response<CommentResponseDto>> update(@AuthenticationPrincipal UserDetails userDetails,
                                                                @PathVariable Long commentId,
                                                                @RequestBody @Valid CommentUpdateRequestDto requestDto) {
         CommentResponseDto response = commentService.update(userDetails, commentId, requestDto);
@@ -53,7 +54,7 @@ public class CommentControllerV1 {
     }
 
     @DeleteMapping("v1/comments/{commentId}")
-    public ResponseEntity<Response<Long>> delete(UserDetails userDetails,
+    public ResponseEntity<Response<Long>> delete(@AuthenticationPrincipal UserDetails userDetails,
                                                  @PathVariable Long commentId) {
         Long deletedCommentId = commentService.delete(userDetails, commentId);
         return ResponseEntity.status(HttpStatus.OK)
