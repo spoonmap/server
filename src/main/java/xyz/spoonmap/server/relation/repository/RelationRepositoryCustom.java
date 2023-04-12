@@ -9,4 +9,8 @@ public interface RelationRepositoryCustom {
 
     List<Member> findFollows(Long id);
 
+    List<Member> findMyFollowRequest(Long id);
+
+    List<Member> findMyFollowerRequest(Long id);
+
 }

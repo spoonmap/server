@@ -1,4 +1,4 @@
-package xyz.spoonmap.server.config;
+package xyz.spoonmap.server.config.jpa;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import javax.persistence.EntityManager;

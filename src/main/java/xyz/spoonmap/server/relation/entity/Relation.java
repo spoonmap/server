@@ -6,6 +6,7 @@ import static xyz.spoonmap.server.relation.enums.RelationStatus.REJECTED;
 import static xyz.spoonmap.server.relation.enums.RelationStatus.REQUESTED;
 
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
@@ -19,6 +20,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,7 +47,6 @@ public class Relation {
     private Member receiver;
 
     @NotNull
-    @Size(min = 1, max = 10)
     @Column(name = "relation_status")
     @Enumerated(value = EnumType.STRING)
     private RelationStatus relationStatus;
@@ -55,6 +56,7 @@ public class Relation {
     @AllArgsConstructor
     @Getter
     @EqualsAndHashCode
+    @Builder
     public static class Pk implements Serializable {
 
         @NotNull
@@ -68,6 +70,9 @@ public class Relation {
     }
 
     public Relation(Member sender, Member receiver) {
+        if (Objects.equals(sender.getId(), receiver.getId())) {
+            throw new IllegalArgumentException();
+        }
         this.id = new Pk(sender.getId(), receiver.getId());
         this.sender = sender;
         this.receiver = receiver;

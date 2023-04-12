@@ -15,4 +15,10 @@ public interface RelationService {
 
     FollowAddResponse acceptFollow(Long senderId, UserDetails userDetails);
 
+    FollowResponse retrieveFollowRequest(UserDetails userDetails);
+
+    FollowerResponse retrieveFollowerRequest(UserDetails userDetails);
+
+    FollowAddResponse rejectFollow(Long senderId, UserDetails userDetails);
+
 }

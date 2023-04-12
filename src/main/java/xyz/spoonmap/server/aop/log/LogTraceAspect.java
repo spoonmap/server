@@ -25,9 +25,9 @@ public class LogTraceAspect {
     public Object entry(ProceedingJoinPoint pjp) throws Throwable {
         HttpServletRequest request =
             ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        LogTraceThreadLocal.set();
 
         log.info("[{}] {}", LogTraceThreadLocal.getId(), request.getRequestURI());
-
         Object proceed = pjp.proceed();
 
         LogTraceThreadLocal.remove();
