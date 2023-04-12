@@ -30,12 +30,13 @@ class RelationRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        String password = "{bcrypt}$2a$10$Iiomu0gZw8iXYH9vuU7CE.5uNYM1MSKfP5xvfMPl.dTTnbf5YoUem";
         member1 =
-            new Member("김철수", "email1@email.com", "passwordpasswordpasswordpasswordpasswordpasswordpassword", "철수",
+            new Member("김철수", "email1@email.com", password, "철수",
                 null);
 
         member2 =
-            new Member("김영희", "email2@email.com", "passwordpasswordpasswordpasswordpasswordpasswordpasswordpass", "영희",
+            new Member("김영희", "email2@email.com", password, "영희",
                 null);
     }
 
@@ -48,13 +49,14 @@ class RelationRepositoryTest {
     @Test
     @DisplayName("팔로워 조회")
     void testFindFollowers() {
-        Member member = memberRepository.save(member1);
-        memberRepository.save(member2);
+        Member savedMember1 = memberRepository.save(member1);
+        Member savedMember2 = memberRepository.save(member2);
 
-        Relation relation = new Relation(member1, member2);
-        relationRepository.save(relation);
+        Relation relation = new Relation(savedMember1, savedMember2);
+        Relation savedRelation = relationRepository.save(relation);
+        savedRelation.accept();
 
-        List<Member> followers = relationRepository.findFollowers(member.getId());
+        List<Member> followers = relationRepository.findFollowers(member2.getId());
 
         assertThat(followers).hasSize(1);
     }
@@ -66,9 +68,10 @@ class RelationRepositoryTest {
         Member followReceiver = memberRepository.save(member2);
 
         Relation relation = new Relation(followSender, followReceiver);
-        relationRepository.save(relation);
+        Relation savedRelation = relationRepository.save(relation);
+        savedRelation.accept();
 
-        List<Member> followers = relationRepository.findFollows(followReceiver.getId());
+        List<Member> followers = relationRepository.findFollows(followSender.getId());
 
         assertThat(followers).hasSize(1);
     }

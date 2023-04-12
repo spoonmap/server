@@ -58,7 +58,7 @@ class MemberControllerV1Test {
 
     Long id = 1L;
     String email = "email@email.com";
-    String password = "$2a$12$qwNhSzw4uYf2AlwJOn5/letEMrMeNLGCnO6dzmm2pprQWvZubixXe";
+    String password = "12341234";
     String nickname = "Nick";
     String name = "홍길동";
 

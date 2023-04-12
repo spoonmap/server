@@ -60,8 +60,7 @@ public class FollowControllerV1 {
 
         FollowResponse followResponse = relationService.retrieveFollowRequest(userDetails);
 
-        return ResponseEntity.status(OK)
-                             .body(Response.of(OK.value(), followResponse));
+        return Response.success(OK, OK.value(), followResponse);
     }
 
     @PatchMapping("/rejection/{senderId}")
