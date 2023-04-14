@@ -18,5 +18,5 @@ public interface PostService {
 
     PostResponseDto updatePost(UserDetails userDetails, Long id, PostUpdateRequestDto requestDto, List<MultipartFile> files);
 
-    PostResponseDto deletePost(UserDetails userDetails, Long id);
+    Long deletePost(UserDetails userDetails, Long id);
 }
