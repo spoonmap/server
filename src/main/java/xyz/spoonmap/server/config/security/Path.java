@@ -9,7 +9,7 @@ public final class Path {
 
     static final String[] V1_USER = {
         // Members
-        "/**/members/profile/**", "/**/members/follows", "/**/members/followers/**"
+        "/**/members/profile/**", "/**/members/follows/**", "/**/members/followers/**"
 
         // Posts
 
