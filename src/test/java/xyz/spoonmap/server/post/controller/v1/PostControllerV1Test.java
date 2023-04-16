@@ -35,6 +35,8 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -101,6 +103,7 @@ class PostControllerV1Test {
                .andExpect(status().isOk())
                .andExpect(content().string(containsString(postId.toString())))
                .andExpect(content().string(containsString(expectedTitle)));
+        then(postServiceV1).should(times(1)).getAllPosts();
     }
 
     @Test
@@ -122,7 +125,7 @@ class PostControllerV1Test {
                .andExpect(status().isOk())
                .andExpect(content().string(containsString(postId.toString())))
                .andExpect(content().string(containsString(expectedTitle)));
-
+        then(postServiceV1).should(times(1)).getPost(postId);
     }
 
     @Test
@@ -158,6 +161,7 @@ class PostControllerV1Test {
                        .accept(MediaType.APPLICATION_JSON)
                        .characterEncoding(StandardCharsets.UTF_8))
                .andExpect(status().isCreated());
+        then(postServiceV1).should(times(1)).createPost(customUserDetail, requestDto, List.of(file));
     }
 
     @Test
@@ -204,6 +208,7 @@ class PostControllerV1Test {
                        .accept(MediaType.APPLICATION_JSON)
                        .characterEncoding(StandardCharsets.UTF_8))
                .andExpect(status().isOk());
+        then(postServiceV1).should(times(1)).updatePost(customUserDetail, postId, requestDto, List.of(file));
     }
 
     @Test
@@ -216,5 +221,6 @@ class PostControllerV1Test {
                                                 .with(csrf()))
                .andExpect(status().isOk())
                .andExpect(content().string(containsString(postId.toString())));
+        then(postServiceV1).should(times(1)).deletePost(customUserDetail, postId);
     }
 }

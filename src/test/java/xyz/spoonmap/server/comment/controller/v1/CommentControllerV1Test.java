@@ -27,6 +27,8 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -69,9 +71,6 @@ class CommentControllerV1Test {
 
     @Test
     void 게시물의_모든_댓글_조회() throws Exception {
-        String url = "/v1/posts/" + postId + "/comments";
-
-
         Comment comment1 = Comment.builder()
                                   .content("comment1")
                                   .member(member)
@@ -90,15 +89,15 @@ class CommentControllerV1Test {
 
         given(commentServiceV1.findAllBy(postId)).willReturn(responses);
 
-        mockMvc.perform(get(url).with(user(customUserDetail)))
+        mockMvc.perform(get("/v1/posts/{postId}/comments", postId).with(user(customUserDetail)))
                .andExpect(status().isOk())
                .andExpect(content().string(containsString("comment1")))
                .andExpect(content().string(containsString("comment2")));
+        then(commentServiceV1).should(times(1)).findAllBy(postId);
     }
 
     @Test
     void 댓글_생성() throws Exception {
-        String url = "/v1/posts/" + postId + "/comments";
         String content = "create content";
 
         CommentSaveRequestDto requestDto = new CommentSaveRequestDto(postId, null, content);
@@ -115,20 +114,20 @@ class CommentControllerV1Test {
 
         given(commentServiceV1.create(customUserDetail, postId, requestDto)).willReturn(response);
 
-        mockMvc.perform(post(url).with(user(customUserDetail))
-                                 .with(csrf())
-                                 .contentType(MediaType.APPLICATION_JSON)
-                                 .content(requestBody)
-                                 .accept(MediaType.APPLICATION_JSON)
-                                 .characterEncoding("utf-8"))
+        mockMvc.perform(post("/v1/posts/{postId}/comments", postId).with(user(customUserDetail))
+                                                                   .with(csrf())
+                                                                   .contentType(MediaType.APPLICATION_JSON)
+                                                                   .content(requestBody)
+                                                                   .accept(MediaType.APPLICATION_JSON)
+                                                                   .characterEncoding("utf-8"))
                .andExpect(status().isCreated())
                .andExpect(content().string(containsString(content)));
+        then(commentServiceV1).should(times(1)).create(customUserDetail, postId, requestDto);
     }
 
     @Test
     void 댓글_수정() throws Exception {
         Long commentId = 42L;
-        String url = "/v1/comments/" + commentId;
         String content = "update content";
 
         CommentUpdateRequestDto requestDto = new CommentUpdateRequestDto(content);
@@ -145,27 +144,28 @@ class CommentControllerV1Test {
 
         given(commentServiceV1.update(customUserDetail, postId, requestDto)).willReturn(response);
 
-        mockMvc.perform(put(url).with(user(customUserDetail))
-                                .with(csrf())
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(requestBody)
-                                .accept(MediaType.APPLICATION_JSON)
-                                .characterEncoding("utf-8"))
+        mockMvc.perform(put("/v1/comments/{commentId}", commentId).with(user(customUserDetail))
+                                                                  .with(csrf())
+                                                                  .contentType(MediaType.APPLICATION_JSON)
+                                                                  .content(requestBody)
+                                                                  .accept(MediaType.APPLICATION_JSON)
+                                                                  .characterEncoding("utf-8"))
                .andExpect(status().isOk())
                .andExpect(content().string(containsString(content)));
+        then(commentServiceV1).should(times(1)).update(customUserDetail, postId, requestDto);
     }
 
     @Test
     void 댓글_삭제() throws Exception {
         Long commentId = 42L;
-        String url = "/v1/comments/" + commentId;
 
         given(commentServiceV1.delete(customUserDetail, commentId)).willReturn(commentId);
 
-        mockMvc.perform(delete(url).with(user(customUserDetail))
-                                   .with(csrf())
-                                   .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/v1/comments/{commentId}", commentId).with(user(customUserDetail))
+                                                                    .with(csrf())
+                                                                    .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk())
                .andExpect(content().string(containsString(commentId.toString())));
+        then(commentServiceV1).should(times(1)).delete(customUserDetail, commentId);
     }
 }
