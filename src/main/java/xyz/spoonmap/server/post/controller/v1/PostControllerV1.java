@@ -37,7 +37,6 @@ public class PostControllerV1 {
                              .body(Response.of(HttpStatus.OK.value(), responseDtos));
     }
 
-
     @GetMapping("/{postId}")
     ResponseEntity<Response<PostResponseDto>> getPost(@PathVariable("postId") Long id) {
         PostResponseDto responseDto = this.postService.getPost(id);

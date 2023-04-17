@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface SpoonRepository extends JpaRepository<Spoon, Spoon.Pk> {
     List<Spoon> findAllByPostId(Long postId);
+
+    Long countSpoonsByPostId(Long postId);
 }

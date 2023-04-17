@@ -64,6 +64,16 @@ class SpoonServiceV1Test {
     }
 
     @Test
+    void 게시물의_스푼_갯수_조회() {
+        Long spoonCount = 24L;
+        given(spoonRepository.countSpoonsByPostId(postId)).willReturn(spoonCount);
+
+        Long result = spoonServiceV1.count(userDetails, postId);
+
+        assertThat(result).isEqualTo(spoonCount);
+    }
+
+    @Test
     void 게시물_스푼_추가() {
         // given
         Post post = new Post();

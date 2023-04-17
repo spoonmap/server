@@ -16,9 +16,9 @@ import xyz.spoonmap.server.restaurant.entity.Restaurant;
 import xyz.spoonmap.server.restaurant.repository.RestaurantRepository;
 import xyz.spoonmap.server.spoon.entity.Spoon;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import(QueryDslConfig.class)
@@ -73,7 +73,7 @@ class SpoonRepositoryTest {
     }
 
     @Test
-    void 게시물_아이디로_spoon_전체_조회() {
+    void 게시물_아이디로_스푼_전체_조회() {
         // given
         Member mockedMember = createMockMember();
         mockedMember = memberRepository.save(mockedMember);
@@ -101,5 +101,33 @@ class SpoonRepositoryTest {
         assertThat(results).hasSize(1);
         assertThat(result.getId().getPostNo()).isEqualTo(mockedPost.getId());
         assertThat(result.getId().getMemberNo()).isEqualTo(mockedMember.getId());
+    }
+
+    @Test
+    void 게시물_아이디로_스푼_갯수_조회() {
+        // given
+        Member mockedMember = createMockMember();
+        mockedMember = memberRepository.save(mockedMember);
+
+        Restaurant mockedRestaurant = createMockRestaurant();
+        mockedRestaurant = restaurantRepository.save(mockedRestaurant);
+
+        Category mockedCategory = createMockCategory();
+        mockedCategory = categoryRepository.save(mockedCategory);
+
+        Post mockedPost = createMockPost(mockedMember, mockedRestaurant, mockedCategory);
+        mockedPost = postRepository.save(mockedPost);
+
+        Spoon spoon = Spoon.builder()
+                           .post(mockedPost)
+                           .member(mockedMember)
+                           .build();
+        spoon = spoonRepository.save(spoon);
+
+        // when
+        Long count = spoonRepository.countSpoonsByPostId(mockedPost.getId());
+
+        // then
+        assertThat(count).isEqualTo(1L);
     }
 }

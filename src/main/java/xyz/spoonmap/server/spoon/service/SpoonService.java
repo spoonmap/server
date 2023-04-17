@@ -9,6 +9,8 @@ import java.util.List;
 public interface SpoonService {
     List<SpoonResponseDto> findAll(UserDetails userDetails, Long postId);
 
+    Long count(UserDetails userDetails, Long postId);
+
     SpoonResponseDto add(UserDetails userDetails, Long postId);
 
     Spoon.Pk delete(UserDetails userDetails, Long postId);

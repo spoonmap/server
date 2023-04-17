@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
+import xyz.spoonmap.server.exception.domain.member.UnauthorizedException;
 import xyz.spoonmap.server.exception.domain.post.PostNotFoundException;
+import xyz.spoonmap.server.exception.domain.spoon.SpoonNotFoundException;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.repository.PostRepository;
@@ -14,6 +16,7 @@ import xyz.spoonmap.server.spoon.repository.SpoonRepository;
 import xyz.spoonmap.server.spoon.service.SpoonService;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +33,13 @@ public class SpoonServiceV1 implements SpoonService {
         return spoons.stream()
                      .map(spoon -> new SpoonResponseDto(spoon, member))
                      .toList();
+    }
+
+    @Override
+    public Long count(UserDetails userDetails, Long postId) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
+        Long count = spoonRepository.countSpoonsByPostId(postId);
+        return count;
     }
 
     @Override

@@ -77,6 +77,20 @@ class SpoonControllerTest {
     }
 
     @Test
+    void 게시물의_스푼_갯수_조회() throws Exception {
+        Long expected = 24L;
+        given(spoonService.count(userDetails, postId)).willReturn(expected);
+
+        mockMvc.perform(get("/v1/posts/{postId}/spoons/counts", postId).with(user(userDetails))
+                                                                       .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath(expectCode, equalTo(HttpStatus.OK.value())))
+                .andExpect(jsonPath("$.data", notNullValue()))
+                .andExpect(content().string(containsString(expected.toString())));
+    }
+
+
+    @Test
     void 게시물에_스푼_추가() throws Exception {
         Spoon spoon = new Spoon();
         ReflectionTestUtils.setField(spoon, "id", new Spoon.Pk(memberId, postId));

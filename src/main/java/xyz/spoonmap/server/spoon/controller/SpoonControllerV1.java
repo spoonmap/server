@@ -34,6 +34,14 @@ public class SpoonControllerV1 {
                              .body(Response.of(OK.value(), responseDtos));
     }
 
+    @GetMapping("/counts")
+    public ResponseEntity<Response<Long>> count(@AuthenticationPrincipal UserDetails userDetails,
+                                                @PathVariable Long postId) {
+        Long count = spoonService.count(userDetails, postId);
+        return ResponseEntity.status(OK)
+                             .body(Response.of(OK.value(), count));
+    }
+
     @PostMapping
     public ResponseEntity<Response<SpoonResponseDto>> addSpoon(@AuthenticationPrincipal UserDetails userDetails,
                                                                @PathVariable Long postId) {
