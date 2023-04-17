@@ -36,15 +36,10 @@ class CommentRepositoryTest {
     private PostRepository postRepository;
 
     private Member createMockMember() {
-        String password = "";
-        for (int i = 0; i < 50; i++) {
-            password += ".";
-        }
-
         return Member.builder()
                      .name("Minjun")
                      .email("test@gmail.com")
-                     .password(password)
+                     .password(".".repeat(60))
                      .nickname("MJ")
                      .build();
     }

@@ -35,15 +35,11 @@ class PostRepositoryTest {
     @Test
     void 삭제되지_않은_게시물_모두_조회() {
         // given
-        String password = "";
-        for (int i = 0; i < 50; i++) {
-            password += ".";
-        }
 
         Member member = Member.builder()
                               .name("Minjun")
                               .email("test@gmail.com")
-                              .password(password)
+                              .password(".".repeat(60))
                               .nickname("MJ")
                               .build();
         memberRepository.save(member);
@@ -93,15 +89,10 @@ class PostRepositoryTest {
     @Test
     void 삭제되지_않은_게시물_하나_조회() {
         // given
-        String password = "";
-        for (int i = 0; i < 50; i++) {
-            password += ".";
-        }
-
         Member member = Member.builder()
                               .name("Minjun")
                               .email("test@gmail.com")
-                              .password(password)
+                              .password(".".repeat(60))
                               .nickname("MJ")
                               .build();
         memberRepository.save(member);
@@ -137,15 +128,10 @@ class PostRepositoryTest {
     @Test
     void 삭제되지_않은_게시물_하나_조회_실패() {
         // given
-        String password = "";
-        for (int i = 0; i < 50; i++) {
-            password += ".";
-        }
-
         Member member = Member.builder()
                               .name("Minjun")
                               .email("test@gmail.com")
-                              .password(password)
+                              .password(".".repeat(60))
                               .nickname("MJ")
                               .build();
         memberRepository.save(member);
