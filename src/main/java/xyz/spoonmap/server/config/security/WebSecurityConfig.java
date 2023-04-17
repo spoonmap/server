@@ -4,12 +4,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.http.LegacyCookieProcessor;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,12 +24,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import xyz.spoonmap.server.authentication.JwtGenerator;
 import xyz.spoonmap.server.authentication.filter.AuthenticateFilter;
 import xyz.spoonmap.server.authentication.filter.JwtVerifyFilter;
+import xyz.spoonmap.server.dto.response.ErrorResponse;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    private final ObjectMapper om;
     private final JwtGenerator jwtGenerator;
     private final AuthenticationConfiguration configuration;
 
@@ -53,13 +57,21 @@ public class WebSecurityConfig {
 
         http
             .exceptionHandling()
-            .accessDeniedHandler(((request, response, accessDeniedException) -> {
-                response.setCharacterEncoding(UTF_8.name());
-                response.sendError(FORBIDDEN.value(), "로그인이 필요합니다.");
-            }))
             .authenticationEntryPoint(((request, response, authException) -> {
                 response.setCharacterEncoding(UTF_8.name());
-                response.sendError(UNAUTHORIZED.value(), "권한이 없습니다.");
+                response.setStatus(FORBIDDEN.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                String msg = om.writeValueAsString(ErrorResponse.fail(FORBIDDEN.value(), "로그인이 필요합니다."));
+                response.getWriter().write(msg);
+                response.getWriter().flush();
+            }))
+            .accessDeniedHandler(((request, response, accessDeniedException) -> {
+                response.setCharacterEncoding(UTF_8.name());
+                response.setStatus(UNAUTHORIZED.value());
+                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                String msg = om.writeValueAsString(ErrorResponse.fail(UNAUTHORIZED.value(), "권한이 없습니다."));
+                response.getWriter().write(msg);
+                response.getWriter().flush();
             }));
 
         return http.build();
@@ -80,7 +92,8 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                          .antMatchers("/swagger*", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs")
-                         .antMatchers("/h2-console/**");
+                         .antMatchers("/h2-console/**")
+                         .antMatchers("/health-check");
     }
 
     /**

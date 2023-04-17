@@ -46,6 +46,7 @@ public class Member {
     @Size(max = 500)
     @Email
     @NotNull
+    @Column(unique = true)
     private String email;
 
     @Size(min = 60, max = 70)
@@ -54,6 +55,7 @@ public class Member {
 
     @Size(min = 2, max = 20)
     @NotNull
+    @Column(unique = true)
     private String nickname;
 
     @Size(min = 1, max = 500)
@@ -97,7 +99,12 @@ public class Member {
         this.password = newPassword;
     }
 
-    public void updateNickname(String newNickname) {
+    public void updateNickname(final String newNickname) {
         this.nickname = newNickname;
     }
+
+    public void updateProfileImage(final String profileImageUrl) {
+        this.avatar = profileImageUrl;
+    }
+
 }

@@ -23,12 +23,11 @@ public class RandomEntityGenerator {
     }
 
     public static <T> T createWithId(Class<T> type) {
-        return new EasyRandom().nextObject(type);
+        return new EasyRandom(getParamWithId()).nextObject(type);
     }
 
     private static EasyRandomParameters getParamWithId() {
         return new EasyRandomParameters()
-            .excludeField(named("id"))
             .stringLengthRange(1, 60)
             .randomize(Long.class, new LongRangeRandomizer(1L, 9999L))
             .randomize(Integer.class, new IntegerRangeRandomizer(1, 9999));
