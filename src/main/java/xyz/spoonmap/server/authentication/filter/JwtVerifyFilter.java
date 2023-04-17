@@ -24,6 +24,8 @@ public class JwtVerifyFilter extends OncePerRequestFilter {
         setAuthenticateIfTokenIsValid(token);
 
         filterChain.doFilter(request, response);
+
+        SecurityContextHolder.clearContext();
     }
 
     private void setAuthenticateIfTokenIsValid(final String token) {

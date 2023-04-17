@@ -1,6 +1,8 @@
 package xyz.spoonmap.server.notification.entity;
 
 
+import static lombok.AccessLevel.PROTECTED;
+
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,7 +27,7 @@ import xyz.spoonmap.server.notification.entity.enums.NotificationType;
 @Entity
 @Table(name = "notifications")
 @EntityListeners(AuditingEntityListener.class)
-@NoArgsConstructor
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class Notification {
 
@@ -38,6 +40,9 @@ public class Notification {
     @JoinColumn(name = "member_no")
     @NotNull
     private Member member;
+
+    @Column(name = "target_no")
+    private Long targetId;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -52,9 +57,11 @@ public class Notification {
     @NotNull
     private Boolean checked;
 
-    public Notification(Member member, NotificationType type) {
+    public Notification(Member member, NotificationType type, Long targetId) {
         this.member = member;
         this.type = type;
+        this.targetId = targetId;
+        this.createdAt = LocalDateTime.now();
         this.checked = false;
     }
 }
