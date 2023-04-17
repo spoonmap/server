@@ -25,7 +25,7 @@ public class GlobalControllerAdvice {
         return ErrorResponse.fail(NOT_FOUND, NOT_FOUND.value(), e.getMessage());
     }
 
-    @ExceptionHandler(NotFoundException.class)
+    @ExceptionHandler(DuplicateException.class)
     public ResponseEntity<ErrorResponse> handleDuplicationException(DuplicateException e) {
 
         return ErrorResponse.fail(BAD_REQUEST, BAD_REQUEST.value(), e.getMessage());
