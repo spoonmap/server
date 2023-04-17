@@ -59,7 +59,12 @@ public class SpoonServiceV1 implements SpoonService {
     public Spoon.Pk delete(UserDetails userDetails, Long postId) {
         Member member = ((CustomUserDetail) userDetails).getMember();
 
-        spoonRepository.deleteById(new Spoon.Pk(member.getId(), postId));
-        return new Spoon.Pk(member.getId(), postId);
+        Spoon spoon = spoonRepository.findById(new Spoon.Pk(member.getId(), postId)).orElseThrow(SpoonNotFoundException::new);
+        if (!Objects.equals(spoon.getId().getMemberNo(), member.getId())) {
+            throw new UnauthorizedException();
+        }
+
+        spoonRepository.delete(spoon);
+        return spoon.getId();
     }
 }
