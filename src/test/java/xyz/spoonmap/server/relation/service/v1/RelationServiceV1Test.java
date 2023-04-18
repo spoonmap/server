@@ -38,7 +38,6 @@ class RelationServiceV1Test {
     @Mock
     MemberRepository memberRepository;
 
-
     CustomUserDetail userDetails;
     Member member;
     Long id;

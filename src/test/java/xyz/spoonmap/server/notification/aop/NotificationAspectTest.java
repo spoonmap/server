@@ -1,0 +1,173 @@
+package xyz.spoonmap.server.notification.aop;
+
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
+
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import xyz.spoonmap.server.authentication.CustomUserDetail;
+import xyz.spoonmap.server.category.entity.Category;
+import xyz.spoonmap.server.category.repository.CategoryRepository;
+import xyz.spoonmap.server.comment.dto.request.CommentSaveRequestDto;
+import xyz.spoonmap.server.comment.dto.response.CommentResponseDto;
+import xyz.spoonmap.server.comment.repository.CommentRepository;
+import xyz.spoonmap.server.comment.service.CommentService;
+import xyz.spoonmap.server.member.entity.Member;
+import xyz.spoonmap.server.member.repository.MemberRepository;
+import xyz.spoonmap.server.notification.entity.Notification;
+import xyz.spoonmap.server.notification.event.NotificationEvent;
+import xyz.spoonmap.server.notification.event.eventlistener.NotificationEventListener;
+import xyz.spoonmap.server.notification.repository.NotificationRepository;
+import xyz.spoonmap.server.post.entity.Post;
+import xyz.spoonmap.server.post.entity.enums.MealTime;
+import xyz.spoonmap.server.post.repository.PostRepository;
+import xyz.spoonmap.server.relation.dto.response.FollowAddResponse;
+import xyz.spoonmap.server.relation.repository.RelationRepository;
+import xyz.spoonmap.server.relation.service.RelationService;
+import xyz.spoonmap.server.restaurant.entity.Restaurant;
+import xyz.spoonmap.server.restaurant.repository.RestaurantRepository;
+
+@SpringBootTest
+class NotificationAspectTest {
+
+    @Autowired
+    PostRepository postRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
+
+    @Autowired
+    RestaurantRepository restaurantRepository;
+
+    @Autowired
+    MemberRepository memberRepository;
+
+    @Autowired
+    RelationRepository relationRepository;
+
+    @Autowired
+    NotificationRepository notificationRepository;
+
+    @Autowired
+    CommentRepository commentRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    CommentService commentService;
+
+    @Autowired
+    RelationService relationService;
+
+    @Autowired
+    NotificationEventListener listener;
+
+    @SpyBean
+    NotificationEventListener notificationEventListener;
+
+    @SpyBean
+    NotificationAspect notificationAspect;
+
+    UserDetails userDetails;
+    Member member1;
+    Member member2;
+    String password = "passw0rd";
+    String encoded;
+
+    @BeforeEach
+    void setUp() {
+        encoded = passwordEncoder.encode(password);
+        member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수", null);
+        member2 = new Member("김영희", "xzcv@email.com", encoded, "영희", null);
+        userDetails = new CustomUserDetail(member2);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+        notificationRepository.deleteAll();
+        relationRepository.deleteAll();
+        commentRepository.deleteAll();
+        postRepository.deleteAll();
+        memberRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("댓글 추가시 알림 생성")
+    void testAddCommentNotification() {
+        Restaurant restaurant = new Restaurant("식당1", "서울", 1.23f, 4.56f);
+        Category category = new Category("분류1");
+        Post post = Post.builder()
+                        .member(member1)
+                        .restaurant(restaurant)
+                        .category(category)
+                        .title("title")
+                        .content("content")
+                        .mealTime(MealTime.점심)
+                        .starRating((byte) 3)
+                        .build();
+
+        restaurantRepository.save(restaurant);
+        categoryRepository.save(category);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+        postRepository.save(post);
+
+        CommentSaveRequestDto dto = new CommentSaveRequestDto(post.getId(), null, "content");
+        commentService.create(userDetails, post.getId(), dto);
+
+        try {
+            Thread.sleep(1000);
+        } catch (Exception ignore) {
+
+        }
+
+        assertThat(notificationRepository.findAll()).hasSize(1);
+
+        then(notificationAspect).should(times(1)).addCommentNotification(any(CommentResponseDto.class));
+        then(notificationEventListener).should(times(1)).eventListener(any(NotificationEvent.class));
+    }
+
+    @Test
+    @DisplayName("팔로우 시 알림 생성")
+    void testAddFollowNotification() {
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        member1.verify();
+        member2.verify();
+        memberRepository.saveAllAndFlush(List.of(member1, member2));
+
+        UserDetails user = new CustomUserDetail(member1);
+
+        relationService.requestFollow(user, member2.getId());
+
+        try {
+            Thread.sleep(1000);
+        } catch (Exception ignore) {
+
+        }
+        List<Notification> list = notificationRepository.findAll();
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).getTargetId()).isEqualTo(member1.getId());
+
+        then(notificationAspect).should(times(1)).addFollowNotification(any(FollowAddResponse.class));
+        then(notificationEventListener).should(times(1)).eventListener(any(NotificationEvent.class));
+    }
+
+}

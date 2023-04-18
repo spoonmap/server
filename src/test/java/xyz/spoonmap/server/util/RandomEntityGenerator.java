@@ -1,8 +1,5 @@
 package xyz.spoonmap.server.util;
 
-
-import static org.jeasy.random.FieldPredicates.named;
-
 import java.util.List;
 import java.util.stream.IntStream;
 import org.jeasy.random.EasyRandom;

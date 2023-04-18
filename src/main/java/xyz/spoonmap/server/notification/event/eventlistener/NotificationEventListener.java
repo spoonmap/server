@@ -18,6 +18,7 @@ public class NotificationEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void eventListener(NotificationEvent event) {
+
         notificationRepository.save(new Notification(event.getMember(), event.getNotificationType(), event.getTargetId()));
     }
 

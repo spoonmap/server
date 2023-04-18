@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.spy;
 
 @ExtendWith(MockitoExtension.class)
 class CommentServiceV1Test {
@@ -65,7 +66,8 @@ class CommentServiceV1Test {
         ReflectionTestUtils.setField(member, "id", memberId);
         CustomUserDetail customUserDetail = new CustomUserDetail(member);
 
-        Post post = Post.builder().build();
+        Post post = spy(Post.builder().build());
+        given(post.getMember()).willReturn(member);
         given(postRepository.findPostByIdAndDeletedAtIsNull(postId)).willReturn(Optional.of(post));
 
         String expected = "content";

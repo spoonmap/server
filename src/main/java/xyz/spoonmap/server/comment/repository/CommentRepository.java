@@ -6,5 +6,5 @@ import xyz.spoonmap.server.comment.entity.Comment;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    public List<Comment> findCommentsByPostIdAndDeletedAtIsNull(Long postId);
+    List<Comment> findCommentsByPostIdAndDeletedAtIsNull(Long postId);
 }

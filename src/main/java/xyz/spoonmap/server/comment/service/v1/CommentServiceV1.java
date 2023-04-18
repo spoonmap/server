@@ -54,7 +54,7 @@ public class CommentServiceV1 implements CommentService {
                                  .content(requestDto.content())
                                  .build();
         commentRepository.save(comment);
-        return new CommentResponseDto(comment);
+        return new CommentResponseDto(comment, post.getMember().getId());
     }
 
     @Transactional

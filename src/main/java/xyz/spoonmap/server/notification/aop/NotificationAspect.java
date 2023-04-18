@@ -1,5 +1,6 @@
 package xyz.spoonmap.server.notification.aop;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,16 +23,22 @@ public class NotificationAspect {
 
     @AfterReturning(value = "execution(* xyz.spoonmap.server.comment.service.*.create(..))", returning = "returnValue")
     public void addCommentNotification(CommentResponseDto returnValue) {
-
+        Member member = this.getMember();
+        if (Objects.equals(member.getId(), returnValue.authorId())) {
+            return;
+        }
         applicationEventPublisher
-            .publishEvent(new NotificationEvent(this.getMember(), NotificationType.COMMENT, returnValue.id()));
+            .publishEvent(new NotificationEvent(member, NotificationType.COMMENT, returnValue.id()));
     }
 
     @AfterReturning(value = "execution(* xyz.spoonmap.server.relation.service.*.requestFollow(..))", returning = "returnValue")
     public void addFollowNotification(FollowAddResponse returnValue) {
-
+        Member member = this.getMember();
+        if (Objects.equals(member.getId(), returnValue.senderId())) {
+            return;
+        }
         applicationEventPublisher
-            .publishEvent(new NotificationEvent(this.getMember(), NotificationType.COMMENT, returnValue.senderId()));
+            .publishEvent(new NotificationEvent(member, NotificationType.COMMENT, returnValue.senderId()));
     }
 
     private Member getMember() {

@@ -4,6 +4,6 @@ import java.util.List;
 
 public record SliceResponse<T>(
     boolean hasNext,
-    List<T> data
+    List<T> content
 ) {
 }

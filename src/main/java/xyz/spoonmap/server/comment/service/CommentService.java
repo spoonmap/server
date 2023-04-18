@@ -8,11 +8,13 @@ import xyz.spoonmap.server.comment.dto.response.CommentResponseDto;
 import java.util.List;
 
 public interface CommentService {
-    public List<CommentResponseDto> findAllBy(Long postId);
 
-    public CommentResponseDto create(UserDetails userDetails, Long postId, CommentSaveRequestDto requestDto);
+    List<CommentResponseDto> findAllBy(Long postId);
 
-    public CommentResponseDto update(UserDetails userDetails, Long commentId, CommentUpdateRequestDto requestDto);
+    CommentResponseDto create(UserDetails userDetails, Long postId, CommentSaveRequestDto requestDto);
 
-    public Long delete(UserDetails userDetails, Long commentId);
+    CommentResponseDto update(UserDetails userDetails, Long commentId, CommentUpdateRequestDto requestDto);
+
+    Long delete(UserDetails userDetails, Long commentId);
+
 }
