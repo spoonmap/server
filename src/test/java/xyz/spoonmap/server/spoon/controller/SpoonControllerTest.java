@@ -5,6 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,7 +70,9 @@ class SpoonControllerTest {
         ReflectionTestUtils.setField(spoon, "id", new Spoon.Pk(memberId, postId));
 
         SpoonResponseDto responseDto = new SpoonResponseDto(spoon, member);
-        given(spoonService.findAll(userDetails, postId)).willReturn(List.of(responseDto));
+        Pageable pageable = PageRequest.of(0, 10);
+        Slice<SpoonResponseDto> slice = new SliceImpl<>(List.of(responseDto));
+        given(spoonService.findAll(userDetails, postId, pageable)).willReturn(slice);
 
         mockMvc.perform(get("/v1/posts/{postId}/spoons", postId).with(user(userDetails))
                                                                 .accept(MediaType.APPLICATION_JSON))
@@ -84,10 +90,10 @@ class SpoonControllerTest {
 
         mockMvc.perform(get("/v1/posts/{postId}/spoons/counts", postId).with(user(userDetails))
                                                                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath(expectCode, equalTo(HttpStatus.OK.value())))
-                .andExpect(jsonPath("$.data", notNullValue()))
-                .andExpect(content().string(containsString(expected.toString())));
+               .andExpect(status().isOk())
+               .andExpect(jsonPath(expectCode, equalTo(HttpStatus.OK.value())))
+               .andExpect(jsonPath("$.data", notNullValue()))
+               .andExpect(content().string(containsString(expected.toString())));
     }
 
 

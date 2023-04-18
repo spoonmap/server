@@ -5,6 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
@@ -53,13 +57,16 @@ class SpoonServiceV1Test {
                            .post(post)
                            .build();
         ReflectionTestUtils.setField(spoon, "id", new Spoon.Pk(memberId, postId));
-        given(spoonRepository.findAllByPostId(postId)).willReturn(List.of(spoon));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Slice<Spoon> slice = new SliceImpl<>(List.of(spoon));
+        given(spoonRepository.findAllByPostId(postId, pageable)).willReturn(slice);
 
         // when
-        List<SpoonResponseDto> results = spoonServiceV1.findAll(userDetails, postId);
+        Slice<SpoonResponseDto> results = spoonServiceV1.findAll(userDetails, postId, pageable);
 
         // then
-        SpoonResponseDto result = results.get(0);
+        SpoonResponseDto result = results.getContent().get(0);
         assertThat(result.postId()).isEqualTo(postId);
         assertThat(result.memberResponse().id()).isEqualTo(memberId);
     }
@@ -92,6 +99,10 @@ class SpoonServiceV1Test {
     @Test
     void 게시물_스푼_삭제() {
         // given
+        Spoon spoon = new Spoon();
+        Spoon.Pk id = new Spoon.Pk(memberId, postId);
+        ReflectionTestUtils.setField(spoon, "id", id);
+        given(spoonRepository.findById(id)).willReturn(Optional.of(spoon));
 
         // when
         SpoonDeleteResponseDto responseDto = spoonServiceV1.delete(userDetails, postId);

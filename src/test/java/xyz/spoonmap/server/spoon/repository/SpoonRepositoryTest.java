@@ -1,9 +1,13 @@
 package xyz.spoonmap.server.spoon.repository;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import xyz.spoonmap.server.category.entity.Category;
 import xyz.spoonmap.server.category.repository.CategoryRepository;
 import xyz.spoonmap.server.config.QueryDslConfig;
@@ -16,8 +20,7 @@ import xyz.spoonmap.server.restaurant.entity.Restaurant;
 import xyz.spoonmap.server.restaurant.repository.RestaurantRepository;
 import xyz.spoonmap.server.spoon.entity.Spoon;
 
-import java.util.List;
-
+import static java.lang.Math.random;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -39,12 +42,33 @@ class SpoonRepositoryTest {
     @Autowired
     private SpoonRepository spoonRepository;
 
+    private Restaurant mockedRestaurant;
+    private Category mockedCategory;
+    private Post mockedPost;
+
+    @BeforeEach
+    public void setup() {
+        mockedRestaurant = createMockRestaurant();
+        mockedRestaurant = restaurantRepository.save(mockedRestaurant);
+        mockedCategory = createMockCategory();
+        mockedCategory = categoryRepository.save(mockedCategory);
+        mockedPost = createMockPost();
+        mockedPost = postRepository.save(mockedPost);
+    }
+
     private Member createMockMember() {
+        char[] array = new char[10]; // length is bounded by 7
+        for (int i = 0; i < 10; i++) {
+            array[i] = (char) ((int) (random() * 25) + 65);
+        }
+        String generatedname = new String(array);
+        System.out.println(generatedname);
+
         return Member.builder()
-                     .name("test")
-                     .email("test@gmail.com")
+                     .name(generatedname)
+                     .email(generatedname + "@gmail.com")
                      .password(".".repeat(60))
-                     .nickname("TU")
+                     .nickname(generatedname)
                      .build();
     }
 
@@ -61,66 +85,60 @@ class SpoonRepositoryTest {
         return new Category("한식");
     }
 
-    private Post createMockPost(Member member, Restaurant restaurant, Category category) {
+    private Post createMockPost() {
+        Member member = createMockMember();
+        memberRepository.save(member);
         return Post.builder()
                    .member(member)
-                   .restaurant(restaurant)
-                   .category(category)
+                   .restaurant(mockedRestaurant)
+                   .category(mockedCategory)
                    .title("mocked post")
                    .mealTime(MealTime.아침)
                    .starRating((byte) 10)
                    .build();
     }
 
+    private void saveSpoon() {
+        Member randomMember = createMockMember();
+        memberRepository.save(randomMember);
+        Spoon spoon = Spoon.builder()
+                           .post(mockedPost)
+                           .member(randomMember)
+                           .build();
+        spoon = spoonRepository.save(spoon);
+    }
+
     @Test
     void 게시물_아이디로_스푼_전체_조회() {
         // given
-        Member mockedMember = createMockMember();
-        mockedMember = memberRepository.save(mockedMember);
-
-        Restaurant mockedRestaurant = createMockRestaurant();
-        mockedRestaurant = restaurantRepository.save(mockedRestaurant);
-
-        Category mockedCategory = createMockCategory();
-        mockedCategory = categoryRepository.save(mockedCategory);
-
-        Post mockedPost = createMockPost(mockedMember, mockedRestaurant, mockedCategory);
-        mockedPost = postRepository.save(mockedPost);
-
-        Spoon spoon = Spoon.builder()
-                           .post(mockedPost)
-                           .member(mockedMember)
-                           .build();
-        spoon = spoonRepository.save(spoon);
+        for (int i = 0; i < 30; i++) {
+            saveSpoon();
+        }
 
         // when
-        List<Spoon> results = spoonRepository.findAllByPostId(mockedPost.getId());
+        Pageable pageable = PageRequest.of(1, 10);
+        Slice<Spoon> results = spoonRepository.findAllByPostId(mockedPost.getId(), pageable);
 
         // then
-        Spoon result = results.get(0);
-        assertThat(results).hasSize(1);
-        assertThat(result.getId().getPostNo()).isEqualTo(mockedPost.getId());
-        assertThat(result.getId().getMemberNo()).isEqualTo(mockedMember.getId());
+        assertThat(results.getNumber()).isEqualTo(1);
+        assertThat(results.getSize()).isEqualTo(10);
+        assertThat(results.getContent()).hasSize(10);
+        assertThat(results.getContent().get(0).getPost().getId()).isEqualTo(mockedPost.getId());
+        assertThat(results.hasPrevious()).isTrue();
+        assertThat(results.hasNext()).isTrue();
+        assertThat(results.isFirst()).isFalse();
+        assertThat(results.isLast()).isFalse();
     }
 
     @Test
     void 게시물_아이디로_스푼_갯수_조회() {
         // given
-        Member mockedMember = createMockMember();
-        mockedMember = memberRepository.save(mockedMember);
-
-        Restaurant mockedRestaurant = createMockRestaurant();
-        mockedRestaurant = restaurantRepository.save(mockedRestaurant);
-
-        Category mockedCategory = createMockCategory();
-        mockedCategory = categoryRepository.save(mockedCategory);
-
-        Post mockedPost = createMockPost(mockedMember, mockedRestaurant, mockedCategory);
-        mockedPost = postRepository.save(mockedPost);
+        Member member = createMockMember();
+        memberRepository.save(member);
 
         Spoon spoon = Spoon.builder()
                            .post(mockedPost)
-                           .member(mockedMember)
+                           .member(member)
                            .build();
         spoon = spoonRepository.save(spoon);
 

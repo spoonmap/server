@@ -1,6 +1,9 @@
 package xyz.spoonmap.server.spoon.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,10 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import xyz.spoonmap.server.dto.response.Response;
 import xyz.spoonmap.server.spoon.dto.SpoonDeleteResponseDto;
 import xyz.spoonmap.server.spoon.dto.SpoonResponseDto;
-import xyz.spoonmap.server.spoon.entity.Spoon;
 import xyz.spoonmap.server.spoon.service.SpoonService;
-
-import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -28,11 +28,12 @@ public class SpoonControllerV1 {
     private final SpoonService spoonService;
 
     @GetMapping
-    public ResponseEntity<Response<List<SpoonResponseDto>>> findAll(@AuthenticationPrincipal UserDetails userDetails,
-                                                                    @PathVariable Long postId) {
-        List<SpoonResponseDto> responseDtos = spoonService.findAll(userDetails, postId);
+    public ResponseEntity<Response<Slice<SpoonResponseDto>>> findAll(@AuthenticationPrincipal UserDetails userDetails,
+                                                                     @PathVariable Long postId,
+                                                                     @PageableDefault Pageable pageable) {
+        Slice<SpoonResponseDto> response = spoonService.findAll(userDetails, postId, pageable);
         return ResponseEntity.status(OK)
-                             .body(Response.of(OK.value(), responseDtos));
+                             .body(Response.of(OK.value(), response));
     }
 
     @GetMapping("/counts")

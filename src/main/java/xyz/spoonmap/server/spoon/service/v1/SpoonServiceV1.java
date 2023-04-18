@@ -1,6 +1,8 @@
 package xyz.spoonmap.server.spoon.service.v1;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
@@ -16,7 +18,6 @@ import xyz.spoonmap.server.spoon.entity.Spoon;
 import xyz.spoonmap.server.spoon.repository.SpoonRepository;
 import xyz.spoonmap.server.spoon.service.SpoonService;
 
-import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -27,13 +28,11 @@ public class SpoonServiceV1 implements SpoonService {
     private final SpoonRepository spoonRepository;
 
     @Override
-    public List<SpoonResponseDto> findAll(UserDetails userDetails, Long postId) {
+    public Slice<SpoonResponseDto> findAll(UserDetails userDetails, Long postId, Pageable pageable) {
         Member member = ((CustomUserDetail) userDetails).getMember();
-        List<Spoon> spoons = spoonRepository.findAllByPostId(postId);
+        Slice<Spoon> spoons = spoonRepository.findAllByPostId(postId, pageable);
 
-        return spoons.stream()
-                     .map(spoon -> new SpoonResponseDto(spoon, member))
-                     .toList();
+        return spoons.map(spoon -> new SpoonResponseDto(spoon, member));
     }
 
     @Override
@@ -60,7 +59,8 @@ public class SpoonServiceV1 implements SpoonService {
     public SpoonDeleteResponseDto delete(UserDetails userDetails, Long postId) {
         Member member = ((CustomUserDetail) userDetails).getMember();
 
-        Spoon spoon = spoonRepository.findById(new Spoon.Pk(member.getId(), postId)).orElseThrow(SpoonNotFoundException::new);
+        Spoon spoon = spoonRepository.findById(new Spoon.Pk(member.getId(), postId))
+                                     .orElseThrow(SpoonNotFoundException::new);
         if (!Objects.equals(spoon.getId().getMemberNo(), member.getId())) {
             throw new UnauthorizedException();
         }
