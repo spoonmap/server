@@ -10,6 +10,7 @@ import xyz.spoonmap.server.exception.domain.spoon.SpoonNotFoundException;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.repository.PostRepository;
+import xyz.spoonmap.server.spoon.dto.SpoonDeleteResponseDto;
 import xyz.spoonmap.server.spoon.dto.SpoonResponseDto;
 import xyz.spoonmap.server.spoon.entity.Spoon;
 import xyz.spoonmap.server.spoon.repository.SpoonRepository;
@@ -56,7 +57,7 @@ public class SpoonServiceV1 implements SpoonService {
     }
 
     @Override
-    public Spoon.Pk delete(UserDetails userDetails, Long postId) {
+    public SpoonDeleteResponseDto delete(UserDetails userDetails, Long postId) {
         Member member = ((CustomUserDetail) userDetails).getMember();
 
         Spoon spoon = spoonRepository.findById(new Spoon.Pk(member.getId(), postId)).orElseThrow(SpoonNotFoundException::new);
@@ -65,6 +66,6 @@ public class SpoonServiceV1 implements SpoonService {
         }
 
         spoonRepository.delete(spoon);
-        return spoon.getId();
+        return new SpoonDeleteResponseDto(spoon.getId());
     }
 }

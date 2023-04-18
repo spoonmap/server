@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.spoonmap.server.dto.response.Response;
+import xyz.spoonmap.server.spoon.dto.SpoonDeleteResponseDto;
 import xyz.spoonmap.server.spoon.dto.SpoonResponseDto;
 import xyz.spoonmap.server.spoon.entity.Spoon;
 import xyz.spoonmap.server.spoon.service.SpoonService;
@@ -51,10 +52,10 @@ public class SpoonControllerV1 {
     }
 
     @DeleteMapping
-    public ResponseEntity<Response<Spoon.Pk>> deleteSpoon(@AuthenticationPrincipal UserDetails userDetails,
-                                                          @PathVariable Long postId) {
-        Spoon.Pk id = spoonService.delete(userDetails, postId);
+    public ResponseEntity<Response<SpoonDeleteResponseDto>> deleteSpoon(@AuthenticationPrincipal UserDetails userDetails,
+                                                                        @PathVariable Long postId) {
+        SpoonDeleteResponseDto responseDto = spoonService.delete(userDetails, postId);
         return ResponseEntity.status(OK)
-                             .body(Response.of(OK.value(), id));
+                             .body(Response.of(OK.value(), responseDto));
     }
 }

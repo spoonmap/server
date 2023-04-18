@@ -1,6 +1,7 @@
 package xyz.spoonmap.server.spoon.service;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import xyz.spoonmap.server.spoon.dto.SpoonDeleteResponseDto;
 import xyz.spoonmap.server.spoon.dto.SpoonResponseDto;
 import xyz.spoonmap.server.spoon.entity.Spoon;
 
@@ -13,5 +14,5 @@ public interface SpoonService {
 
     SpoonResponseDto add(UserDetails userDetails, Long postId);
 
-    Spoon.Pk delete(UserDetails userDetails, Long postId);
+    SpoonDeleteResponseDto delete(UserDetails userDetails, Long postId);
 }

@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.member.entity.Member;
+import xyz.spoonmap.server.spoon.dto.SpoonDeleteResponseDto;
 import xyz.spoonmap.server.spoon.dto.SpoonResponseDto;
 import xyz.spoonmap.server.spoon.entity.Spoon;
 import xyz.spoonmap.server.spoon.service.SpoonService;
@@ -110,7 +111,8 @@ class SpoonControllerTest {
 
     @Test
     void 게시물_스푼_삭제() throws Exception {
-        given(spoonService.delete(userDetails, postId)).willReturn(new Spoon.Pk(memberId, postId));
+        SpoonDeleteResponseDto responseDto = new SpoonDeleteResponseDto(new Spoon.Pk(memberId, postId));
+        given(spoonService.delete(userDetails, postId)).willReturn(responseDto);
 
         mockMvc.perform(delete("/v1/posts/{postId}/spoons", postId).with(user(userDetails))
                                                                    .with(csrf())

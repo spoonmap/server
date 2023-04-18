@@ -11,6 +11,7 @@ import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.post.entity.Post;
 import xyz.spoonmap.server.post.repository.PostRepository;
+import xyz.spoonmap.server.spoon.dto.SpoonDeleteResponseDto;
 import xyz.spoonmap.server.spoon.dto.SpoonResponseDto;
 import xyz.spoonmap.server.spoon.entity.Spoon;
 import xyz.spoonmap.server.spoon.repository.SpoonRepository;
@@ -93,10 +94,10 @@ class SpoonServiceV1Test {
         // given
 
         // when
-        Spoon.Pk id = spoonServiceV1.delete(userDetails, postId);
+        SpoonDeleteResponseDto responseDto = spoonServiceV1.delete(userDetails, postId);
 
         // then
-        assertThat(id.getPostNo()).isEqualTo(postId);
-        assertThat(id.getMemberNo()).isEqualTo(memberId);
+        assertThat(responseDto.postId()).isEqualTo(postId);
+        assertThat(responseDto.memberId()).isEqualTo(memberId);
     }
 }
