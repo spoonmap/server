@@ -45,7 +45,6 @@ class SpoonControllerTest {
     private static final Long postId = 12L;
     @Autowired
     WebApplicationContext context;
-    @Autowired
     MockMvc mockMvc;
     private UserDetails userDetails;
     private String expectCode = "$.code";

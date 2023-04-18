@@ -18,6 +18,7 @@ import xyz.spoonmap.server.spoon.entity.Spoon;
 import xyz.spoonmap.server.spoon.repository.SpoonRepository;
 import xyz.spoonmap.server.spoon.service.SpoonService;
 
+import javax.transaction.Transactional;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -42,6 +43,7 @@ public class SpoonServiceV1 implements SpoonService {
         return count;
     }
 
+    @Transactional
     @Override
     public SpoonResponseDto add(UserDetails userDetails, Long postId) {
         Member member = ((CustomUserDetail) userDetails).getMember();
@@ -55,6 +57,7 @@ public class SpoonServiceV1 implements SpoonService {
         return new SpoonResponseDto(spoon, member);
     }
 
+    @Transactional
     @Override
     public SpoonDeleteResponseDto delete(UserDetails userDetails, Long postId) {
         Member member = ((CustomUserDetail) userDetails).getMember();
