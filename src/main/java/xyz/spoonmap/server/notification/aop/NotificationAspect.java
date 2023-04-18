@@ -5,9 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.comment.dto.response.CommentResponseDto;
 import xyz.spoonmap.server.exception.domain.member.MemberNotFoundException;
 import xyz.spoonmap.server.member.entity.Member;
@@ -26,30 +24,29 @@ public class NotificationAspect {
 
     @AfterReturning(value = "execution(* xyz.spoonmap.server.comment.service.*.create(..))", returning = "returnValue")
     public void addCommentNotification(CommentResponseDto returnValue) {
-        Member commentWriter = this.getMember();
-        Member author = memberRepository.findById(returnValue.authorId())
-                                        .orElseThrow(MemberNotFoundException::new);
+        Long commentWriterId = returnValue.memberResponse().id();
+        Member postAuthor = memberRepository.findById(returnValue.authorId())
+                                            .orElseThrow(MemberNotFoundException::new);
 
-        if (Objects.equals(commentWriter.getId(), author.getId())) {
+        if (Objects.equals(commentWriterId, postAuthor.getId())) {
             return;
         }
 
         applicationEventPublisher
-            .publishEvent(new NotificationEvent(author, NotificationType.COMMENT, commentWriter.getId()));
+            .publishEvent(new NotificationEvent(postAuthor, NotificationType.COMMENT, commentWriterId));
     }
 
     @AfterReturning(value = "execution(* xyz.spoonmap.server.relation.service.*.requestFollow(..))", returning = "returnValue")
     public void addFollowNotification(FollowAddResponse returnValue) {
-        Member member = this.getMember();
-        if (Objects.equals(member.getId(), returnValue.senderId())) {
+        Member followReceiver = memberRepository.findById(returnValue.receiverId())
+                                                .orElseThrow(MemberNotFoundException::new);
+
+        if (Objects.equals(followReceiver.getId(), returnValue.senderId())) {
             return;
         }
-        applicationEventPublisher
-            .publishEvent(new NotificationEvent(member, NotificationType.COMMENT, returnValue.senderId()));
-    }
 
-    private Member getMember() {
-        return ((CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMember();
+        applicationEventPublisher
+            .publishEvent(new NotificationEvent(followReceiver, NotificationType.COMMENT, returnValue.senderId()));
     }
 
 }
