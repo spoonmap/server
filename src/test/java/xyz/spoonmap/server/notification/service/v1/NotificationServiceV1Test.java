@@ -43,7 +43,7 @@ class NotificationServiceV1Test {
         int size = 10;
         Member member = mock(Member.class);
         UserDetails userDetails = new CustomUserDetail(member);
-        List<NotificationResponse> notificationResponses = IntStream.range(0, size).mapToObj(i -> generate()).toList();
+        List<NotificationResponse> notificationResponses = IntStream.range(0, size).mapToObj(i -> generate(i)).toList();
         SliceImpl<NotificationResponse> notifications = new SliceImpl<>(notificationResponses);
 
         given(member.getId()).willReturn(id);
@@ -58,19 +58,20 @@ class NotificationServiceV1Test {
         then(notificationRepository).should(times(1)).findNotifications(id, last, size);
     }
 
-    private static NotificationResponse generate() {
-        return convert(RandomEntityGenerator.create(DummyResponse.class));
+    private static NotificationResponse generate(int i) {
+        return convert(RandomEntityGenerator.create(DummyResponse.class), i);
     }
 
     static class DummyResponse {
         Long id;
-        Long targetId;
+        Long a;
+        Long b;
         NotificationType notificationType;
         LocalDateTime createdAt;
     }
 
-    private static NotificationResponse convert(DummyResponse dummy) {
-        return new NotificationResponse(dummy.id, dummy.targetId, dummy.notificationType, dummy.createdAt, false);
+    private static NotificationResponse convert(DummyResponse dummy, int i) {
+        return new NotificationResponse(dummy.id, dummy.a, dummy.b, dummy.notificationType, dummy.createdAt, false);
     }
 
 }

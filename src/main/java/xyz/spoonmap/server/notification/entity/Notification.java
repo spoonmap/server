@@ -13,12 +13,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.lang.Nullable;
+import xyz.spoonmap.server.comment.entity.Comment;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.notification.entity.enums.NotificationType;
 
@@ -39,8 +42,15 @@ public class Notification {
     @NotNull
     private Member member;
 
-    @Column(name = "target_no")
-    private Long targetId;
+    @Nullable
+    @OneToOne
+    @JoinColumn(name = "comment_writer")
+    private Member commentWriter;
+
+    @Nullable
+    @OneToOne
+    @JoinColumn(name = "comment_no")
+    private Comment comment;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -54,12 +64,22 @@ public class Notification {
     @NotNull
     private Boolean checked;
 
-    public Notification(Member member, NotificationType type, Long targetId) {
+    private Notification(Member member, @Nullable Member commentWriter, @Nullable Comment comment,
+                         NotificationType type, Boolean checked) {
         this.member = member;
+        this.commentWriter = commentWriter;
+        this.comment = comment;
         this.type = type;
-        this.targetId = targetId;
         this.createdAt = LocalDateTime.now();
-        this.checked = false;
+        this.checked = checked;
+    }
+
+    public static Notification comment(Member postAuthor, @NotNull Comment comment) {
+        return new Notification(postAuthor, null, comment, NotificationType.COMMENT, false);
+    }
+
+    public static Notification follow(Member followReceiver, @NotNull Member followSender) {
+        return new Notification(followReceiver, followReceiver, null, NotificationType.FOLLOW, false);
     }
 
 }

@@ -20,33 +20,19 @@ import xyz.spoonmap.server.relation.dto.response.FollowAddResponse;
 public class NotificationAspect {
 
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final MemberRepository memberRepository;
 
-    @AfterReturning(value = "execution(* xyz.spoonmap.server.comment.service.*.create(..))", returning = "returnValue")
-    public void addCommentNotification(CommentResponseDto returnValue) {
-        Long commentWriterId = returnValue.memberResponse().id();
-        Member postAuthor = memberRepository.findById(returnValue.authorId())
-                                            .orElseThrow(MemberNotFoundException::new);
-
-        if (Objects.equals(commentWriterId, postAuthor.getId())) {
-            return;
-        }
+    @AfterReturning(value = "execution(* xyz.spoonmap.server.comment.service.*.create(..))", returning = "commentResponse")
+    public void addCommentNotification(CommentResponseDto commentResponse) {
 
         applicationEventPublisher
-            .publishEvent(new NotificationEvent(postAuthor, NotificationType.COMMENT, commentWriterId));
+            .publishEvent(new NotificationEvent(commentResponse.authorId(), commentResponse.id(), NotificationType.COMMENT));
     }
 
-    @AfterReturning(value = "execution(* xyz.spoonmap.server.relation.service.*.requestFollow(..))", returning = "returnValue")
-    public void addFollowNotification(FollowAddResponse returnValue) {
-        Member followReceiver = memberRepository.findById(returnValue.receiverId())
-                                                .orElseThrow(MemberNotFoundException::new);
-
-        if (Objects.equals(followReceiver.getId(), returnValue.senderId())) {
-            return;
-        }
+    @AfterReturning(value = "execution(* xyz.spoonmap.server.relation.service.*.requestFollow(..))", returning = "followResponse")
+    public void addFollowNotification(FollowAddResponse followResponse) {
 
         applicationEventPublisher
-            .publishEvent(new NotificationEvent(followReceiver, NotificationType.COMMENT, returnValue.senderId()));
+            .publishEvent(new NotificationEvent(followResponse.receiverId(), followResponse.senderId(), NotificationType.FOLLOW));
     }
 
 }

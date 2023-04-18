@@ -1,20 +1,19 @@
 package xyz.spoonmap.server.notification.event;
 
 import lombok.Getter;
-import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.notification.entity.enums.NotificationType;
 
 @Getter
 public class NotificationEvent {
 
-    private final Member member;
-    private final NotificationType notificationType;
+    private final Long notificationReceiverId;
     private final Long targetId;
+    private final NotificationType notificationType;
 
-    public NotificationEvent(Member member, NotificationType notificationType, Long targetId) {
-        this.member = member;
+    public NotificationEvent(Long notificationReceiverId, Long targetId, NotificationType notificationType) {
+        this.notificationReceiverId = notificationReceiverId;
+        this.targetId = targetId;   // Comment Id || Follow Sender
         this.notificationType = notificationType;
-        this.targetId = targetId;
     }
 
 }

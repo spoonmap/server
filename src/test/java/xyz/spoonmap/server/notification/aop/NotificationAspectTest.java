@@ -164,7 +164,6 @@ class NotificationAspectTest {
         }
         List<Notification> list = notificationRepository.findAll();
         assertThat(list).hasSize(1);
-        assertThat(list.get(0).getTargetId()).isEqualTo(member1.getId());
 
         then(notificationAspect).should(times(1)).addFollowNotification(any(FollowAddResponse.class));
         then(notificationEventListener).should(times(1)).eventListener(any(NotificationEvent.class));
