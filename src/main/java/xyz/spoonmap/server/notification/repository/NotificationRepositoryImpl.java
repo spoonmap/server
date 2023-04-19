@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import xyz.spoonmap.server.notification.dto.response.NotificationResponse;
+import xyz.spoonmap.server.notification.entity.enums.NotificationType;
 
 @RequiredArgsConstructor
 public class NotificationRepositoryImpl implements NotificationRepositoryCustom {
@@ -35,7 +36,17 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
             .limit(size)
             .fetch();
 
+        readNotification(notifications);
+
         return checkLastPage(notifications, size);
+    }
+
+    private void readNotification(List<NotificationResponse> notifications) {
+        List<Long> ids = notifications.stream().map(NotificationResponse::getId).toList();
+        query.update(notification)
+            .set(notification.checked, true)
+            .where(notification.id.in(ids))
+            .execute();
     }
 
     private BooleanExpression ltNotificationId(Long id) {

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.notification.dto.response.NotificationResponse;
@@ -17,6 +18,7 @@ public class NotificationServiceV1 implements NotificationService {
 
     private final NotificationRepository notificationRepository;
 
+    @Transactional
     @Override
     public SliceResponse<NotificationResponse> retrieveNotification(final UserDetails userDetails,
                                                                     final Long lastNotificationId,
