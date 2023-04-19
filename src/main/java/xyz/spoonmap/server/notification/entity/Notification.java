@@ -1,5 +1,6 @@
 package xyz.spoonmap.server.notification.entity;
 
+import static lombok.AccessLevel.PROTECTED;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
@@ -14,7 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,7 +25,7 @@ import xyz.spoonmap.server.notification.entity.enums.NotificationType;
 @Entity
 @Table(name = "notifications")
 @EntityListeners(AuditingEntityListener.class)
-@NoArgsConstructor
+@NoArgsConstructor(access = PROTECTED)
 @Getter
 public class Notification {
 
@@ -39,6 +39,9 @@ public class Notification {
     @NotNull
     private Member member;
 
+    @Column(name = "target_no")
+    private Long targetId;
+
     @CreatedDate
     @Column(name = "created_at")
     @NotNull
@@ -46,15 +49,24 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Size(min = 1, max = 20)
     private NotificationType type;
 
     @NotNull
     private Boolean checked;
 
-    public Notification(Member member, NotificationType type) {
+    private Notification(Member member, Long targetId, NotificationType type, Boolean checked) {
         this.member = member;
+        this.targetId = targetId;
         this.type = type;
-        this.checked = false;
+        this.checked = checked;
     }
+
+    public static Notification comment(Member postAuthor, Long commentId) {
+        return new Notification(postAuthor, commentId, NotificationType.COMMENT, false);
+    }
+
+    public static Notification follow(Member followReceiver, Long followSenderId) {
+        return new Notification(followReceiver, followSenderId, NotificationType.FOLLOW, false);
+    }
+
 }
