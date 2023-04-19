@@ -23,7 +23,7 @@ public class NotificationRepositoryImpl implements NotificationRepositoryCustom 
         List<NotificationResponse> notifications = query
             .select(Projections.constructor(
                 NotificationResponse.class,
-                notification.id, notification.comment.id, notification.member.id, notification.type,
+                notification.id, notification.targetId, notification.type,
                 notification.createdAt, notification.checked
             ))
             .from(notification)

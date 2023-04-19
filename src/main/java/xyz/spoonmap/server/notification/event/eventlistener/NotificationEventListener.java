@@ -19,8 +19,6 @@ import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.notification.entity.Notification;
 import xyz.spoonmap.server.notification.event.NotificationEvent;
 import xyz.spoonmap.server.notification.repository.NotificationRepository;
-import xyz.spoonmap.server.relation.entity.Relation;
-import xyz.spoonmap.server.relation.repository.RelationRepository;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +27,6 @@ public class NotificationEventListener {
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
-    private final RelationRepository relationRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
@@ -56,24 +53,21 @@ public class NotificationEventListener {
             return;
         }
 
-        notificationRepository.save(Notification.comment(postAuthor, comment));
+        notificationRepository.save(Notification.comment(postAuthor, commentId));
     }
 
     private void saveFollowNotification(NotificationEvent event) {
         Long followReceiverId = event.getNotificationReceiverId();
         Long followSenderId = event.getTargetId();
 
-        if (Objects.equals(followReceiverId, followSenderId)
-            || relationRepository.findById(new Relation.Pk(followReceiverId, followSenderId)).isPresent()) {
+        if (Objects.equals(followReceiverId, followSenderId)) {
             return;
         }
 
         Member receiver = memberRepository.findById(followReceiverId)
                                           .orElseThrow(MemberNotFoundException::new);
-        Member sender = memberRepository.findById(followSenderId)
-                                        .orElseThrow(MemberNotFoundException::new);
 
-        notificationRepository.save(Notification.follow(receiver, sender));
+        notificationRepository.save(Notification.follow(receiver, followSenderId));
     }
 
 }

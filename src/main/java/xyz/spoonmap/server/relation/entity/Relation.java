@@ -18,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -36,12 +35,12 @@ public class Relation {
     @EmbeddedId
     private Pk id;
 
-    @MapsId(value = "senderNo")
+    @MapsId(value = "senderId")
     @ManyToOne
     @JoinColumn(name = "sender_no")
     private Member sender;
 
-    @MapsId(value = "receiverNo")
+    @MapsId(value = "receiverId")
     @ManyToOne
     @JoinColumn(name = "receiver_no")
     private Member receiver;
@@ -61,11 +60,11 @@ public class Relation {
 
         @NotNull
         @Column(name = "sender_no")
-        private Long senderNo;
+        private Long senderId;
 
         @NotNull
         @Column(name = "receiver_no")
-        private Long receiverNo;
+        private Long receiverId;
 
     }
 

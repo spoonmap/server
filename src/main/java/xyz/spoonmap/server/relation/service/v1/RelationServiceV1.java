@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.exception.domain.member.MemberNotFoundException;
 import xyz.spoonmap.server.exception.domain.member.MemberNotVerifiedException;
+import xyz.spoonmap.server.exception.domain.relation.FollowExistException;
 import xyz.spoonmap.server.exception.domain.relation.RelationNotFoundException;
 import xyz.spoonmap.server.member.dto.response.MemberResponse;
 import xyz.spoonmap.server.member.entity.Member;
@@ -60,6 +61,9 @@ public class RelationServiceV1 implements RelationService {
             throw new MemberNotVerifiedException();
         }
 
+        relationRepository.findById(new Relation.Pk(sender.getId(), receiverId))
+                          .ifPresent(r -> {throw new FollowExistException();});
+
         Relation relation = new Relation(sender, receiver);
         relationRepository.save(relation);
 
@@ -72,8 +76,8 @@ public class RelationServiceV1 implements RelationService {
         Member member = ((CustomUserDetail) userDetails).getMember();
 
         Relation.Pk relationId = Relation.Pk.builder()
-                                            .senderNo(senderId)
-                                            .receiverNo(member.getId())
+                                            .senderId(senderId)
+                                            .receiverId(member.getId())
                                             .build();
 
         Relation relation = relationRepository.findById(relationId)
@@ -111,7 +115,7 @@ public class RelationServiceV1 implements RelationService {
     @Transactional
     @Override
     public FollowAddResponse rejectFollow(Long senderId, UserDetails userDetails) {
-        // TODO: 거절되면 알림?
+
         Member member = ((CustomUserDetail) userDetails).getMember();
 
         Relation relation = relationRepository.findById(new Relation.Pk(senderId, member.getId()))

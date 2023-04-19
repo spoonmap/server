@@ -27,6 +27,7 @@ import xyz.spoonmap.server.comment.service.CommentService;
 import xyz.spoonmap.server.member.entity.Member;
 import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.notification.entity.Notification;
+import xyz.spoonmap.server.notification.entity.enums.NotificationType;
 import xyz.spoonmap.server.notification.event.NotificationEvent;
 import xyz.spoonmap.server.notification.event.eventlistener.NotificationEventListener;
 import xyz.spoonmap.server.notification.repository.NotificationRepository;
@@ -135,8 +136,9 @@ class NotificationAspectTest {
         } catch (Exception ignore) {
 
         }
-
-        assertThat(notificationRepository.findAll()).hasSize(1);
+        List<Notification> list = notificationRepository.findAll();
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).getType()).isEqualTo(NotificationType.COMMENT);
 
         then(notificationAspect).should(times(1)).addCommentNotification(any(CommentResponseDto.class));
         then(notificationEventListener).should(times(1)).eventListener(any(NotificationEvent.class));
@@ -164,6 +166,7 @@ class NotificationAspectTest {
         }
         List<Notification> list = notificationRepository.findAll();
         assertThat(list).hasSize(1);
+        assertThat(list.get(0).getType()).isEqualTo(NotificationType.FOLLOW);
 
         then(notificationAspect).should(times(1)).addFollowNotification(any(FollowAddResponse.class));
         then(notificationEventListener).should(times(1)).eventListener(any(NotificationEvent.class));

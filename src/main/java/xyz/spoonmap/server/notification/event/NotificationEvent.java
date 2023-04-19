@@ -10,10 +10,18 @@ public class NotificationEvent {
     private final Long targetId;
     private final NotificationType notificationType;
 
-    public NotificationEvent(Long notificationReceiverId, Long targetId, NotificationType notificationType) {
+    private NotificationEvent(Long notificationReceiverId, Long targetId, NotificationType notificationType) {
         this.notificationReceiverId = notificationReceiverId;
         this.targetId = targetId;   // Comment Id || Follow Sender
         this.notificationType = notificationType;
+    }
+
+    public static NotificationEvent comment(Long postAuthor, Long commentId) {
+        return new NotificationEvent(postAuthor, commentId, NotificationType.COMMENT);
+    }
+
+    public static NotificationEvent follow(Long receiver, Long sender) {
+        return new NotificationEvent(receiver, sender, NotificationType.FOLLOW);
     }
 
 }
