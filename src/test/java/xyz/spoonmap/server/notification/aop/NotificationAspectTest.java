@@ -97,8 +97,13 @@ class NotificationAspectTest {
     @BeforeEach
     void setUp() {
         encoded = passwordEncoder.encode(password);
+
         member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
+        memberRepository.save(member1);
+
         member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
+        memberRepository.save(member2);
+
         userDetails = new CustomUserDetail(member2);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
     }
@@ -140,6 +145,7 @@ class NotificationAspectTest {
             log.error(e.getMessage());
             throw e;
         }
+
         CommentSaveRequestDto dto = new CommentSaveRequestDto(post.getId(), null, "content");
         commentService.create(userDetails, post.getId(), dto);
 
@@ -169,6 +175,7 @@ class NotificationAspectTest {
             e.printStackTrace();
             throw e;
         }
+
 
         member1.verify();
         member2.verify();
