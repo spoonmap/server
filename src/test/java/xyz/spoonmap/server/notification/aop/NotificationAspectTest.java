@@ -91,8 +91,13 @@ class NotificationAspectTest {
     @BeforeEach
     void setUp() {
         encoded = passwordEncoder.encode(password);
+
         member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
+        memberRepository.save(member1);
+
         member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
+        memberRepository.save(member2);
+
         userDetails = new CustomUserDetail(member2);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
     }
@@ -121,11 +126,9 @@ class NotificationAspectTest {
                         .mealTime(MealTime.점심)
                         .starRating((byte) 3)
                         .build();
-
         restaurantRepository.save(restaurant);
         categoryRepository.save(category);
-        memberRepository.save(member1);
-        memberRepository.save(member2);
+
         postRepository.save(post);
 
         CommentSaveRequestDto dto = new CommentSaveRequestDto(post.getId(), null, "content");
@@ -147,10 +150,6 @@ class NotificationAspectTest {
     @Test
     @DisplayName("팔로우 시 알림 생성")
     void testAddFollowNotification() {
-
-        memberRepository.save(member1);
-        memberRepository.save(member2);
-
         member1.verify();
         member2.verify();
         memberRepository.saveAllAndFlush(List.of(member1, member2));
