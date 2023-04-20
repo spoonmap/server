@@ -153,7 +153,7 @@ class NotificationAspectTest {
             memberRepository.save(member2);
             postRepository.save(post);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
             throw e;
         }
 
@@ -183,7 +183,7 @@ class NotificationAspectTest {
             memberRepository.save(member1);
             memberRepository.save(member2);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("", e);
             throw e;
         }
 
