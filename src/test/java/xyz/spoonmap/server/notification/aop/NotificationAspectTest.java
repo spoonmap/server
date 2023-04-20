@@ -107,12 +107,16 @@ class NotificationAspectTest {
     @BeforeEach
     void setUp() {
         encoded = passwordEncoder.encode(password);
+        try {
 
-        member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
-        memberRepository.save(member1);
+            member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
+            memberRepository.save(member1);
 
-        member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
-        memberRepository.save(member2);
+            member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
+            memberRepository.save(member2);
+        } catch (Exception e) {
+            log.error("", e);
+        }
 
         userDetails = new CustomUserDetail(member2);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
@@ -146,16 +150,13 @@ class NotificationAspectTest {
                         .starRating((byte) 3)
                         .build();
 
-        try {
-            restaurantRepository.save(restaurant);
-            categoryRepository.save(category);
-            memberRepository.save(member1);
-            memberRepository.save(member2);
-            postRepository.save(post);
-        } catch (Exception e) {
-            log.error("", e);
-            throw e;
-        }
+
+        restaurantRepository.save(restaurant);
+        categoryRepository.save(category);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+        postRepository.save(post);
+
 
         CommentSaveRequestDto dto = new CommentSaveRequestDto(post.getId(), null, "content");
 
@@ -179,13 +180,9 @@ class NotificationAspectTest {
     @Test
     @DisplayName("팔로우 시 알림 생성")
     void testAddFollowNotification() throws Exception {
-        try {
-            memberRepository.save(member1);
-            memberRepository.save(member2);
-        } catch (Exception e) {
-            log.error("", e);
-            throw e;
-        }
+
+        memberRepository.save(member1);
+        memberRepository.save(member2);
 
         member1.verify();
         member2.verify();
