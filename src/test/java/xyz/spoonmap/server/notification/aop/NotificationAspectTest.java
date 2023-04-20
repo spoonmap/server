@@ -110,8 +110,13 @@ class NotificationAspectTest {
     @BeforeEach
     void setUp() {
         encoded = passwordEncoder.encode(password);
+
         member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
+        memberRepository.save(member1);
+
         member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
+        memberRepository.save(member2);
+
         userDetails = new CustomUserDetail(member2);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
     }
@@ -175,6 +180,7 @@ class NotificationAspectTest {
 
         memberRepository.save(member1);
         memberRepository.save(member2);
+
 
         member1.verify();
         member2.verify();
