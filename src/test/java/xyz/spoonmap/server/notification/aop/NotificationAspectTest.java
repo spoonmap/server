@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 
 import java.util.List;
 import javax.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +42,7 @@ import xyz.spoonmap.server.relation.service.RelationService;
 import xyz.spoonmap.server.restaurant.entity.Restaurant;
 import xyz.spoonmap.server.restaurant.repository.RestaurantRepository;
 
+@Slf4j
 @SpringBootTest
 class NotificationAspectTest {
 
@@ -128,12 +130,16 @@ class NotificationAspectTest {
                         .starRating((byte) 3)
                         .build();
 
-        restaurantRepository.save(restaurant);
-        categoryRepository.save(category);
-        memberRepository.save(member1);
-        memberRepository.save(member2);
-        postRepository.save(post);
-
+        try {
+            restaurantRepository.save(restaurant);
+            categoryRepository.save(category);
+            memberRepository.save(member1);
+            memberRepository.save(member2);
+            postRepository.save(post);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw e;
+        }
         CommentSaveRequestDto dto = new CommentSaveRequestDto(post.getId(), null, "content");
         commentService.create(userDetails, post.getId(), dto);
 
@@ -154,8 +160,15 @@ class NotificationAspectTest {
     @DisplayName("팔로우 시 알림 생성")
     void testAddFollowNotification() {
 
-        memberRepository.save(member1);
-        memberRepository.save(member2);
+        try {
+
+
+            memberRepository.save(member1);
+            memberRepository.save(member2);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
 
         member1.verify();
         member2.verify();
