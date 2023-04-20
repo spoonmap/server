@@ -91,8 +91,8 @@ class NotificationAspectTest {
     @BeforeEach
     void setUp() {
         encoded = passwordEncoder.encode(password);
-        member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수", null);
-        member2 = new Member("김영희", "xzcv@email.com", encoded, "영희", null);
+        member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
+        member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
         userDetails = new CustomUserDetail(member2);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
     }
