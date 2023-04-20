@@ -22,7 +22,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
-import xyz.spoonmap.server.exception.member.UnauthorizedException;
 
 @Slf4j
 @Component
@@ -79,12 +78,17 @@ public class JwtGenerator {
     }
 
     public String getToken(HttpServletRequest request) {
-        Cookie jwt = Arrays.stream(request.getCookies())
-                           .filter(cookie -> Objects.equals(cookie.getName(), JWT_COOKIE))
-                           .findFirst()
-                           .orElseThrow(UnauthorizedException::new);
+        Cookie[] cookies = request.getCookies();
 
-        return Objects.requireNonNull(jwt.getValue());
+        if (Objects.isNull(cookies)) {
+            return null;
+        }
+
+        return Arrays.stream(cookies)
+                     .filter(cookie -> Objects.equals(cookie.getName(), JWT_COOKIE))
+                     .findFirst()
+                     .map(Cookie::getValue)
+                     .orElse(null);
     }
 
     public boolean isValid(final String token) {
@@ -105,7 +109,7 @@ public class JwtGenerator {
 
     private boolean verifyToken(final String token) {
 
-        String jwt = token.split(" ")[1].trim();
+        String jwt = token.trim();
         Jws<Claims> claims = Jwts.parserBuilder()
                                  .setSigningKey(key)
                                  .build()

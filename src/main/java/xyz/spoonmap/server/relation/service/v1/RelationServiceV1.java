@@ -1,15 +1,19 @@
 package xyz.spoonmap.server.relation.service.v1;
 
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
-import xyz.spoonmap.server.exception.member.MemberNotFoundException;
-import xyz.spoonmap.server.exception.relation.RelationNotFoundException;
+import xyz.spoonmap.server.exception.domain.member.MemberNotFoundException;
+import xyz.spoonmap.server.exception.domain.member.MemberNotVerifiedException;
+import xyz.spoonmap.server.exception.domain.relation.FollowExistException;
+import xyz.spoonmap.server.exception.domain.relation.RelationNotFoundException;
 import xyz.spoonmap.server.member.dto.response.MemberResponse;
 import xyz.spoonmap.server.member.entity.Member;
+import xyz.spoonmap.server.member.enums.VerifyStatus;
 import xyz.spoonmap.server.member.repository.MemberRepository;
 import xyz.spoonmap.server.relation.dto.response.FollowAddResponse;
 import xyz.spoonmap.server.relation.dto.response.FollowResponse;
@@ -50,7 +54,15 @@ public class RelationServiceV1 implements RelationService {
     @Override
     public FollowAddResponse requestFollow(UserDetails userDetails, Long receiverId) {
         Member sender = ((CustomUserDetail) userDetails).getMember();
-        Member receiver = memberRepository.findById(receiverId).orElseThrow(MemberNotFoundException::new);
+        Member receiver = memberRepository.findById(receiverId)
+                                          .orElseThrow(MemberNotFoundException::new);
+
+        if (Objects.equals(receiver.getVerifyStatus(), VerifyStatus.SIGNUP)) {
+            throw new MemberNotVerifiedException();
+        }
+
+        relationRepository.findById(new Relation.Pk(sender.getId(), receiverId))
+                          .ifPresent(r -> {throw new FollowExistException();});
 
         Relation relation = new Relation(sender, receiver);
         relationRepository.save(relation);
@@ -58,21 +70,64 @@ public class RelationServiceV1 implements RelationService {
         return new FollowAddResponse(sender.getId(), receiverId);
     }
 
-    private MemberResponse toDto(Member member) {
-        return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
-    }
-
     @Transactional
     @Override
     public FollowAddResponse acceptFollow(Long senderId, UserDetails userDetails) {
         Member member = ((CustomUserDetail) userDetails).getMember();
 
-        Relation relation = relationRepository.findById(new Relation.Pk(member.getId(), senderId))
+        Relation.Pk relationId = Relation.Pk.builder()
+                                            .senderId(senderId)
+                                            .receiverId(member.getId())
+                                            .build();
+
+        Relation relation = relationRepository.findById(relationId)
                                               .orElseThrow(RelationNotFoundException::new);
 
         relation.accept();
 
         return new FollowAddResponse(senderId, member.getId());
+    }
+
+    @Override
+    public FollowResponse retrieveFollowRequest(UserDetails userDetails) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
+
+        List<MemberResponse> memberResponses = relationRepository.findMyFollowRequest(member.getId())
+                                                                 .stream()
+                                                                 .map(this::toDto)
+                                                                 .toList();
+
+        return new FollowResponse(member.getId(), memberResponses);
+    }
+
+    @Override
+    public FollowerResponse retrieveFollowerRequest(UserDetails userDetails) {
+        Member member = ((CustomUserDetail) userDetails).getMember();
+
+        List<MemberResponse> memberResponses = relationRepository.findMyFollowerRequest(member.getId())
+                                                                 .stream()
+                                                                 .map(this::toDto)
+                                                                 .toList();
+
+        return new FollowerResponse(member.getId(), memberResponses);
+    }
+
+    @Transactional
+    @Override
+    public FollowAddResponse rejectFollow(Long senderId, UserDetails userDetails) {
+
+        Member member = ((CustomUserDetail) userDetails).getMember();
+
+        Relation relation = relationRepository.findById(new Relation.Pk(senderId, member.getId()))
+                                              .orElseThrow(RelationNotFoundException::new);
+
+        relation.reject();
+
+        return new FollowAddResponse(senderId, member.getId());
+    }
+
+    private MemberResponse toDto(Member member) {
+        return new MemberResponse(member.getId(), member.getName(), member.getNickname(), member.getAvatar());
     }
 
 }

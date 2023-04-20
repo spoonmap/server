@@ -55,6 +55,8 @@ dependencies {
     implementation "at.favre.lib:bcrypt:0.10.2"
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+    implementation "org.jeasy:easy-random-core:5.0.0"
+    testImplementation 'org.projectlombok:lombok:1.18.22'
 
     compileOnly "org.projectlombok:lombok"
     developmentOnly "org.springframework.boot:spring-boot-devtools"
@@ -64,13 +66,15 @@ dependencies {
     runtimeOnly "com.mysql:mysql-connector-j"
     annotationProcessor "org.projectlombok:lombok"
 
+    testCompileOnly "org.projectlombok:lombok"
+    testAnnotationProcessor "org.projectlombok:lombok"
     testRuntimeOnly "com.h2database:h2"
     testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.springframework.security:spring-security-test"
 }
 
-def querydslDir = "$buildDir/generated/'querydsl'"
+def querydslDir = "$buildDir/generated/querydsl"
 
 querydsl {
     jpa = true

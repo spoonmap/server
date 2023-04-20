@@ -4,6 +4,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +21,15 @@ public class FollowerControllerV1 {
     private final RelationService relationService;
 
     @GetMapping
-    public ResponseEntity<Response<FollowerResponse>> retrieveFollow(UserDetails userDetails) {
+    public ResponseEntity<Response<FollowerResponse>> retrieveFollower(@AuthenticationPrincipal UserDetails userDetails) {
         FollowerResponse followerResponse = relationService.retrieveFollowers(userDetails);
+        return ResponseEntity.status(OK)
+                             .body(Response.of(OK.value(), followerResponse));
+    }
+
+    @GetMapping("/request")
+    public ResponseEntity<Response<FollowerResponse>> retrieveFollowerRequest(@AuthenticationPrincipal UserDetails userDetails) {
+        FollowerResponse followerResponse = relationService.retrieveFollowerRequest(userDetails);
         return ResponseEntity.status(OK)
                              .body(Response.of(OK.value(), followerResponse));
     }

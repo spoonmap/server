@@ -1,6 +1,7 @@
 package xyz.spoonmap.server.member.entity;
 
-import static xyz.spoonmap.server.member.enums.VerifyStatus.*;
+import static xyz.spoonmap.server.member.enums.VerifyStatus.SIGNUP;
+import static xyz.spoonmap.server.member.enums.VerifyStatus.VERIFIED;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
@@ -18,6 +19,7 @@ import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,6 +29,7 @@ import xyz.spoonmap.server.member.enums.VerifyStatus;
 @Entity
 @NoArgsConstructor
 @Getter
+@ToString
 @EntityListeners(AuditingEntityListener.class)
 public class Member {
 
@@ -43,14 +46,16 @@ public class Member {
     @Size(max = 500)
     @Email
     @NotNull
+    @Column(unique = true)
     private String email;
 
-    @Size(min = 50, max = 60)
+    @Size(min = 60, max = 70)
     @NotNull
     private String password;
 
     @Size(min = 2, max = 20)
     @NotNull
+    @Column(unique = true)
     private String nickname;
 
     @Size(min = 1, max = 500)
@@ -94,7 +99,12 @@ public class Member {
         this.password = newPassword;
     }
 
-    public void updateNickname(String newNickname) {
+    public void updateNickname(final String newNickname) {
         this.nickname = newNickname;
     }
+
+    public void updateProfileImage(final String profileImageUrl) {
+        this.avatar = profileImageUrl;
+    }
+
 }
