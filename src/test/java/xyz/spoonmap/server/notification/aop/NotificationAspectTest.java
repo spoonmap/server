@@ -4,14 +4,13 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,10 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.event.RecordApplicationEvents;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.spoonmap.server.authentication.CustomUserDetail;
 import xyz.spoonmap.server.category.entity.Category;
@@ -52,6 +48,7 @@ import xyz.spoonmap.server.relation.service.RelationService;
 import xyz.spoonmap.server.restaurant.entity.Restaurant;
 import xyz.spoonmap.server.restaurant.repository.RestaurantRepository;
 
+@Slf4j
 @SpringBootTest
 @RecordApplicationEvents
 class NotificationAspectTest {
@@ -149,11 +146,16 @@ class NotificationAspectTest {
                         .starRating((byte) 3)
                         .build();
 
-        restaurantRepository.save(restaurant);
-        categoryRepository.save(category);
-        memberRepository.save(member1);
-        memberRepository.save(member2);
-        postRepository.save(post);
+        try {
+            restaurantRepository.save(restaurant);
+            categoryRepository.save(category);
+            memberRepository.save(member1);
+            memberRepository.save(member2);
+            postRepository.save(post);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
 
         CommentSaveRequestDto dto = new CommentSaveRequestDto(post.getId(), null, "content");
 
@@ -177,9 +179,13 @@ class NotificationAspectTest {
     @Test
     @DisplayName("팔로우 시 알림 생성")
     void testAddFollowNotification() throws Exception {
-
-        memberRepository.save(member1);
-        memberRepository.save(member2);
+        try {
+            memberRepository.save(member1);
+            memberRepository.save(member2);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
 
         member1.verify();
         member2.verify();
