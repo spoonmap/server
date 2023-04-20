@@ -6,6 +6,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
 import java.util.List;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -76,6 +77,9 @@ class NotificationAspectTest {
     @Autowired
     NotificationEventListener listener;
 
+    @Autowired
+    EntityManager em;
+
     @SpyBean
     NotificationEventListener notificationEventListener;
 
@@ -105,6 +109,8 @@ class NotificationAspectTest {
         commentRepository.deleteAll();
         postRepository.deleteAll();
         memberRepository.deleteAll();
+        em.flush();
+        em.clear();
     }
 
     @Test
