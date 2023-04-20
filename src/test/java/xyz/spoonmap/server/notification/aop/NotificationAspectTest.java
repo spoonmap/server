@@ -107,16 +107,14 @@ class NotificationAspectTest {
     @BeforeEach
     void setUp() {
         encoded = passwordEncoder.encode(password);
-        try {
+        delete();
 
-            member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
-            memberRepository.save(member1);
+        member1 = new Member("김철수", "asdffsd@email.com", encoded, "철수99", null);
+        memberRepository.save(member1);
 
-            member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
-            memberRepository.save(member2);
-        } catch (Exception e) {
-            log.error("", e);
-        }
+        member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
+        memberRepository.save(member2);
+
 
         userDetails = new CustomUserDetail(member2);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
@@ -125,13 +123,17 @@ class NotificationAspectTest {
     @AfterEach
     void tearDown() {
         SecurityContextHolder.clearContext();
+        delete();
+        em.flush();
+        em.clear();
+    }
+
+    private void delete() {
         notificationRepository.deleteAll();
         relationRepository.deleteAll();
         commentRepository.deleteAll();
         postRepository.deleteAll();
         memberRepository.deleteAll();
-        em.flush();
-        em.clear();
     }
 
     @Transactional
@@ -156,7 +158,6 @@ class NotificationAspectTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
         postRepository.save(post);
-
 
         CommentSaveRequestDto dto = new CommentSaveRequestDto(post.getId(), null, "content");
 
