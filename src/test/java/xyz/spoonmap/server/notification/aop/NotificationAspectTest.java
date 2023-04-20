@@ -181,7 +181,6 @@ class NotificationAspectTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-
         member1.verify();
         member2.verify();
         memberRepository.saveAllAndFlush(List.of(member1, member2));
