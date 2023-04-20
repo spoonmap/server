@@ -115,7 +115,6 @@ class NotificationAspectTest {
         member2 = new Member("김영희", "xzcv@email.com", encoded, "영희99", null);
         memberRepository.save(member2);
 
-
         userDetails = new CustomUserDetail(member2);
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, ""));
     }
@@ -124,8 +123,6 @@ class NotificationAspectTest {
     void tearDown() {
         SecurityContextHolder.clearContext();
         delete();
-        em.flush();
-        em.clear();
     }
 
     private void delete() {
@@ -134,6 +131,8 @@ class NotificationAspectTest {
         commentRepository.deleteAll();
         postRepository.deleteAll();
         memberRepository.deleteAll();
+        em.flush();
+        em.clear();
     }
 
     @Transactional
